@@ -2,6 +2,7 @@
 
 ## Présentation
 Le Ceilomètre est un appareil de mesure qui permet d'accéder, entre autre à la concentration de particules ainsi qu'à leurs tailles et formes. Ce petit logiciel permet de tracer les profils verticaux en analysant les fichiers NetCDF de l'instrument.
+![alt text](ceilometer_presentation.png)
 
 ## Licence
 La totalité du code est soumis à la licence GNU General Public Licence v3.0.
