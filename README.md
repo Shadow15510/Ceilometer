@@ -10,6 +10,7 @@ La totalité du code est soumis à la licence GNU General Public Licence v3.0.
 
 ### Dépendances
 Ce logiciel nécessite :
+
  – netcdf >= 4.9.0
 
  – gtk3
