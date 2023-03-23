@@ -31,4 +31,5 @@ dans le cadre d'une réinstallation ou d'une mise à jour, faites `make clear` a
 Pour désinstaller :
 ```
 $ make clear
-```.
+```
+.
