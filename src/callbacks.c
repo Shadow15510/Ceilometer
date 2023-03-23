@@ -6,9 +6,9 @@
 #include <time.h>
 
 
-#include "../include/callbacks.h"
-#include "../include/netcdf_api.h"
-#include "../include/sdl_api.h"
+#include "include/callbacks.h"
+#include "include/netcdf_api.h"
+#include "include/sdl_api.h"
 
 
 extern GtkBuilder *builder;

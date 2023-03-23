@@ -3,8 +3,8 @@
 #include <math.h>
 #include <SDL2/SDL_image.h>
 
-#include "../include/sdl_api.h"
-#include "../include/colors.h"
+#include "include/sdl_api.h"
+#include "include/colors.h"
 
 
 void sdl_image(float *data, float *alt, float minimum, float maximum, const bool filter, const char *var, char *date, const size_t NTIME, const size_t NRANGE)

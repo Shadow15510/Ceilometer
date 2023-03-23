@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <gtk/gtk.h>
-#include "../include/callbacks.h"
+#include "include/main.h"
+#include "include/callbacks.h"
 
 GtkBuilder *builder;
 
