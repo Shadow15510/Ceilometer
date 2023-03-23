@@ -32,4 +32,3 @@ Pour désinstaller :
 ```
 $ make clear
 ```
-.
