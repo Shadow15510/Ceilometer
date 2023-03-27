@@ -1,9 +1,8 @@
-# Ceilomètre
+# NEVADA (Netcdf Exploration and Visualizer for Atmospheric Data Analysis)
 
 ## Présentation
-Le Ceilomètre est un appareil de mesure qui permet d'accéder, entre autre à la concentration de particules ainsi qu'à leurs tailles et formes. Ce petit logiciel permet de tracer les profils verticaux en analysant les fichiers NetCDF de l'instrument.
+NEVADA pour NetCDF Exploration and Visualizer for Atmospheric Data Analysis est un petit logiciel permettant de représenter graphiquement des fichiers NetCDF.
 
-![](ceilometer_presentation.png)
 
 ## Licence
 La totalité du code est soumis à la licence GNU General Public Licence v3.0.
@@ -20,15 +19,29 @@ Pour devez avoir d'installer les paquets suivants :
  – SDL2
 
 ### Installation
-Pour installer, il faut suivre la démarche standard :
+Pour installer NEVADA, il faut suivre la démarche standard :
 ```
+$ git clone 
+$ cd NEVADA
 $ make
 $ make install
 ```
 dans le cadre d'une réinstallation ou d'une mise à jour, faites `make clear` avant.
 
-### Déinstallation
+### Mise à jour
+Pour mettre à jour NEVADA :
+```
+$ cd NEVADA
+$ make clear
+$ git pull
+$ make
+$ make install
+```
+### Désinstallation
 Pour désinstaller :
 ```
+$ cd NEVADA
 $ make clear
+$ cd ../
+$ rm -rf NEVADA
 ```

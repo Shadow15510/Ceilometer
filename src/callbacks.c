@@ -5,7 +5,6 @@
 #include <string.h>
 #include <time.h>
 
-
 #include "include/callbacks.h"
 #include "include/netcdf_api.h"
 #include "include/sdl_api.h"
@@ -17,7 +16,7 @@ bool filter = true;
 bool image_mode = true;
 
 
-G_MODULE_EXPORT void on_window_ceilometer_destroy(void)
+G_MODULE_EXPORT void on_window_nevada_destroy(void)
 {
 	gtk_main_quit();
 }
@@ -26,6 +25,27 @@ G_MODULE_EXPORT void on_window_ceilometer_destroy(void)
 G_MODULE_EXPORT void on_file_netcdf_file_set(void)
 {
 	is_file_selected = true;
+	GList *items = NULL;
+	int ncid, nvars, ndims;
+
+	const char *filename = NULL;
+	GtkFileChooser *file_chooser = GTK_FILE_CHOOSER(gtk_builder_get_object(builder, "file_netcdf"));
+	filename = gtk_file_chooser_get_filename(file_chooser);
+	
+	GtkComboBoxText *combo = GTK_COMBO_BOX_TEXT(gtk_builder_get_object(builder, "combo_vars"));
+
+	nc_open(filename, NC_NOWRITE, &ncid);
+	nc_inq(ncid, NULL, &nvars, NULL, NULL);
+	
+	for (int varid = 0; varid < nvars; varid ++)
+	{
+		gchar varname[NC_MAX_NAME + 1];
+		nc_inq_var(ncid, varid, varname, NULL, &ndims, NULL, NULL);
+		if (ndims == 2)
+			gtk_combo_box_text_append(GTK_COMBO_BOX_TEXT(combo), NULL, varname);
+	}
+
+	nc_close(ncid);
 }
 
 
@@ -62,39 +82,15 @@ G_MODULE_EXPORT void on_button_validation_clicked(void)
 	else return;
 
 	// Récupération de la variable
-	GtkComboBox *combo = GTK_COMBO_BOX(gtk_builder_get_object(builder, "combo_ceilometer_var"));
-	const char *var = NULL;
-	switch(gtk_combo_box_get_active(combo))
-	{
-		case 0:
-			var = "linear_depol_ratio";
-			break;
-
-		case 1:
-			var = "beta_att";
-			break;
-
-		case 2:
-			var = "p_pol";
-			break;
-
-		case 3:
-			var = "x_pol";
-			break;
-	}
+	GtkComboBoxText *combo = GTK_COMBO_BOX_TEXT(gtk_builder_get_object(builder, "combo_vars"));
+	const char *var = gtk_combo_box_text_get_active_text(combo);
 
 	size_t NTIME, NRANGE;
 	int year, month, day;
-	netcdf_get_metadata(filename, &NTIME, &NRANGE, &year, &month, &day);
+	netcdf_get_metadata(filename, var, &NTIME, &NRANGE, &year, &month, &day);
 
 	char date[11];
 	sprintf(date, "%d-%d-%d", day, month, year);
-
-	GtkLabel *label_status = GTK_LABEL(gtk_builder_get_object(builder, "label_status"));
-	gtk_label_set_text(label_status, "en cours de traitement");
-	gtk_main_iteration();
-	sleep(0.1);
-	gtk_main_iteration();
 
 	// Récupération des données
 	float *data = malloc(NTIME * NRANGE * sizeof(float));
@@ -113,6 +109,12 @@ G_MODULE_EXPORT void on_button_validation_clicked(void)
 
 		if (maximum <= minimum) return;
 	}
+
+	GtkLabel *label_status = GTK_LABEL(gtk_builder_get_object(builder, "label_status"));
+	gtk_label_set_text(label_status, "en cours de traitement");
+	gtk_main_iteration();
+	sleep(0.1);
+	gtk_main_iteration();
 
 	if (image_mode)
 		sdl_image(data, alt, minimum, maximum, filter, var, date, NTIME, NRANGE);

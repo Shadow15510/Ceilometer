@@ -19,7 +19,7 @@ void sdl_image(float *data, float *alt, float minimum, float maximum, const bool
 
 	// Initialisation de la TTF
 	TTF_Init();
-	TTF_Font *jetbrains = TTF_OpenFont("/usr/bin/ceilometer_data/fonts/JetBrainsMono-Bold.ttf", 40);
+	TTF_Font *jetbrains = TTF_OpenFont("nevada_data/fonts/JetBrainsMono-Bold.ttf", 40);
 	
 	SDL_Surface *surface_text = NULL;
 	SDL_Texture *texture_text = NULL;
@@ -188,7 +188,7 @@ void sdl_measure(float *data, float *alt, float minimum, float maximum, const bo
 
 	// Initialisation de la TTF
 	TTF_Init();
-	TTF_Font *jetbrains = TTF_OpenFont("/usr/bin/ceilometer_data/fonts/JetBrainsMono-Bold.ttf", 20);
+	TTF_Font *jetbrains = TTF_OpenFont("nevada_data/fonts/JetBrainsMono-Bold.ttf", 20);
 	sdl_render_text(renderer, jetbrains, 2, 2, metadata, true);
 
 	sprintf(filename, "/home/%s/%s_mesures_%s.png", getenv("USER"), var, date);
@@ -231,7 +231,7 @@ void sdl_loop(SDL_Renderer *renderer, float *data, float *alt, const char *filen
 
 	SDL_Event event;
 	TTF_Init();
-	TTF_Font *jetbrains = TTF_OpenFont("/usr/bin/ceilometer_data/fonts/JetBrainsMono-Bold.ttf", 20);
+	TTF_Font *jetbrains = TTF_OpenFont("nevada_data/fonts/JetBrainsMono-Bold.ttf", 20);
 
 	FILE *file = NULL;
 	file = fopen(filename, "w");

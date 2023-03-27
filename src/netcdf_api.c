@@ -13,17 +13,34 @@
 extern GtkBuilder *builder;
 
 
-void netcdf_get_metadata(const char *filename, size_t *time, size_t *range, int *year, int *month, int *day)
+void netcdf_get_variables(const char *filename)
 {
-	int ncid, timeid, rangeid;
+	int ncid, nvars, ndims;
+
+	nc_open(filename, NC_NOWRITE, &ncid);
+	nc_inq(ncid, NULL, &nvars, NULL, NULL);
+	
+	char varname[nvars][NC_MAX_NAME + 1];
+
+	for (int varid = 0; varid < nvars; varid ++)
+		nc_inq_var(ncid, varid, varname[varid], NULL, NULL, NULL, NULL);
+
+	nc_close(ncid);
+}
+
+
+void netcdf_get_metadata(const char *filename, const char *var, size_t *time, size_t *range, int *year, int *month, int *day)
+{
+	int ncid, varid, ndims;
+	int dimsid[NC_MAX_VAR_DIMS];
 
 	nc_open(filename, NC_NOWRITE, &ncid);
 
-	nc_inq_dimid(ncid, "time", &timeid);
-	nc_inq_dimlen(ncid, timeid, time);
-	
-	nc_inq_dimid(ncid, "range", &rangeid);
-	nc_inq_dimlen(ncid, rangeid, range);
+	nc_inq_varid(ncid, var, &varid);
+	nc_inq_var(ncid, varid, NULL, NULL, &ndims, dimsid, NULL);
+
+	nc_inq_dimlen(ncid, dimsid[0], time);	
+	nc_inq_dimlen(ncid, dimsid[1], range);
 
 	nc_get_att_int(ncid, NC_GLOBAL, "year", year);
 	nc_get_att_int(ncid, NC_GLOBAL, "month", month);
