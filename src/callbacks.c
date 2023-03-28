@@ -7,6 +7,7 @@
 
 #include "include/callbacks.h"
 #include "include/netcdf_api.h"
+#include "include/netcdf_data.h"
 #include "include/sdl_api.h"
 
 
@@ -25,27 +26,12 @@ G_MODULE_EXPORT void on_window_nevada_destroy(void)
 G_MODULE_EXPORT void on_file_netcdf_file_set(void)
 {
 	is_file_selected = true;
-	GList *items = NULL;
-	int ncid, nvars, ndims;
 
 	const char *filename = NULL;
 	GtkFileChooser *file_chooser = GTK_FILE_CHOOSER(gtk_builder_get_object(builder, "file_netcdf"));
 	filename = gtk_file_chooser_get_filename(file_chooser);
-	
-	GtkComboBoxText *combo = GTK_COMBO_BOX_TEXT(gtk_builder_get_object(builder, "combo_vars"));
 
-	nc_open(filename, NC_NOWRITE, &ncid);
-	nc_inq(ncid, NULL, &nvars, NULL, NULL);
-	
-	for (int varid = 0; varid < nvars; varid ++)
-	{
-		gchar varname[NC_MAX_NAME + 1];
-		nc_inq_var(ncid, varid, varname, NULL, &ndims, NULL, NULL);
-		if (ndims == 2)
-			gtk_combo_box_text_append(GTK_COMBO_BOX_TEXT(combo), NULL, varname);
-	}
-
-	nc_close(ncid);
+	netcdf_get_variables(filename);
 }
 
 
@@ -84,18 +70,23 @@ G_MODULE_EXPORT void on_button_validation_clicked(void)
 	// Récupération de la variable
 	GtkComboBoxText *combo = GTK_COMBO_BOX_TEXT(gtk_builder_get_object(builder, "combo_vars"));
 	const char *var = gtk_combo_box_text_get_active_text(combo);
+	if (var == NULL)
+		return ;
 
-	size_t NTIME, NRANGE;
+	// Récupération des dimensions et des métadonnées
+	size_t X_AXIS, Y_AXIS;
 	int year, month, day;
-	netcdf_get_metadata(filename, var, &NTIME, &NRANGE, &year, &month, &day);
 
+	netcdf_get_metadata(filename, var, &X_AXIS, &Y_AXIS, &year, &month, &day);
 	char date[11];
 	sprintf(date, "%d-%d-%d", day, month, year);
 
 	// Récupération des données
-	float *data = malloc(NTIME * NRANGE * sizeof(float));
-	float *alt = malloc(NRANGE * sizeof(float));
-	netcdf_get_data(data, alt, filename, var);
+	float *data = malloc(X_AXIS * Y_AXIS * sizeof(float));
+	float *x_labels = malloc(X_AXIS * sizeof(float));
+	float *y_labels = malloc(Y_AXIS * sizeof(float));
+	char dimsname[2][NC_MAX_NAME + 1];
+	netcdf_get_data(filename, var, data, x_labels, y_labels, dimsname);
 
 	// Récupération du mode d'ouverture et traitement des données
 	float minimum = 0, maximum = 0;
@@ -110,20 +101,44 @@ G_MODULE_EXPORT void on_button_validation_clicked(void)
 		if (maximum <= minimum) return;
 	}
 
+	// Mise à jour du statut
 	GtkLabel *label_status = GTK_LABEL(gtk_builder_get_object(builder, "label_status"));
 	gtk_label_set_text(label_status, "en cours de traitement");
 	gtk_main_iteration();
 	sleep(0.1);
 	gtk_main_iteration();
 
+	struct netcdf_data netcdf_data = {
+		data,
+		var,
+
+		X_AXIS,
+		x_labels,
+		dimsname[0],
+
+		Y_AXIS,
+		y_labels,
+		dimsname[1],
+
+		date,
+
+		minimum,
+		maximum,
+		filter
+	};
+
+	// Boucle principale
 	if (image_mode)
-		sdl_image(data, alt, minimum, maximum, filter, var, date, NTIME, NRANGE);
+		sdl_image(&netcdf_data);
 	else
-		sdl_measure(data, alt, minimum, maximum, filter, var, date, NTIME, NRANGE);
+		sdl_measure(&netcdf_data);
 
+	// Désallocation des ressources
 	free(data);
-	free(alt);
+	free(x_labels);
+	free(y_labels);
 
+	// Mise à jour du statut
 	gtk_label_set_text(label_status, "en attente de validation");
 	gtk_main_iteration();
 	sleep(0.1);

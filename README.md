@@ -1,8 +1,9 @@
-# NEVADA (Netcdf Exploration and Visualizer for Atmospheric Data Analysis)
+# NEVADA (NetCDF Explorer and Visualizer for Atmospheric Data Analysis)
 
 ## Présentation
-NEVADA pour NetCDF Exploration and Visualizer for Atmospheric Data Analysis est un petit logiciel permettant de représenter graphiquement des fichiers NetCDF.
+NEVADA (NetCDF Explorer and Visualizer for Atmospheric Data Analysis) est un petit logiciel permettant d'ouvrir et de représenter graphiquement des fichiers NetCDF.
 
+![](nevada_presentation.png)
 
 ## Licence
 La totalité du code est soumis à la licence GNU General Public Licence v3.0.
@@ -10,13 +11,11 @@ La totalité du code est soumis à la licence GNU General Public Licence v3.0.
 ## Utilisation
 
 ### Dépendances
-Pour devez avoir d'installer les paquets suivants :
+Pour devez avoir les paquets suivants :
 
- – netcdf >= 4.9.0
-
- – gtk3
-
- – SDL2
+ - netcdf >= 4.9.0
+ - gtk3
+ - SDL2
 
 ### Installation
 Pour installer NEVADA, il faut suivre la démarche standard :

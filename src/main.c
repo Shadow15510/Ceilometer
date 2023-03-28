@@ -3,6 +3,7 @@
 #include "include/main.h"
 #include "include/callbacks.h"
 
+
 GtkBuilder *builder;
 
 int main(int argc, char *argv[])
@@ -18,5 +19,6 @@ int main(int argc, char *argv[])
 	gtk_main();
 
 	g_object_unref(builder);
+	
 	return 0;
 }

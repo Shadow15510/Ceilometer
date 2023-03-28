@@ -7,13 +7,13 @@
 #include "include/colors.h"
 
 
-void sdl_image(float *data, float *alt, float minimum, float maximum, const bool filter, const char *var, char *date, const size_t NTIME, const size_t NRANGE)
+void sdl_image(struct netcdf_data *data)
 {
 	// Initialisation de la SDL
 	SDL_Window *window = NULL;
 	SDL_Renderer *renderer = NULL;
 	SDL_Init(SDL_INIT_VIDEO);
-	window = SDL_CreateWindow("", 0, 0, NTIME, NRANGE, SDL_WINDOW_HIDDEN);
+	window = SDL_CreateWindow("", 0, 0, data->X_AXIS, data->Y_AXIS, SDL_WINDOW_HIDDEN);
 	renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_SOFTWARE);
 	SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
 
@@ -23,52 +23,53 @@ void sdl_image(float *data, float *alt, float minimum, float maximum, const bool
 	
 	SDL_Surface *surface_text = NULL;
 	SDL_Texture *texture_text = NULL;
-	char altitude[15], hour[15], scale[15];
+	char ordinate[15], time[15], scale[15];
 
 	// Initialisation du rendu
 	SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
 	SDL_RenderClear(renderer);
 
 	// Traitement des données
-	if (!filter) sdl_get_limits(data, &minimum, &maximum, NTIME, NRANGE);
+	if (!data->filter) sdl_get_limits(data);
 
 	// Dessin du rendu
-	for (int time = 0; time < NTIME; time ++)
+	for (int x = 0; x < data->X_AXIS; x ++)
 	{
-		for (int range = 0; range < NRANGE; range ++)
+		for (int y = 0; y < data->Y_AXIS; y ++)
 		{
-			if (filter)
+			if (data->filter)
 			{
-				if (data[NRANGE * time + range] < minimum)
-					data[NRANGE * time + range] = minimum;
-				if (data[NRANGE * time + range] > maximum)
-					data[NRANGE * time + range] = maximum;
+				if (data->var[data->Y_AXIS * x + y] < data->minimum)
+					data->var[data->Y_AXIS * x + y] = data->minimum;
+				if (data->var[data->Y_AXIS * x + y] > data->maximum)
+					data->var[data->Y_AXIS * x + y] = data->maximum;
 			}
 			// Affichage des données
-			int color_index = 1019 - floor(1019 * (sdl_invert_sign(minimum) + data[NRANGE * time + range]) / (sdl_invert_sign(minimum) + maximum));
+			int color_index = 1019 - floor(1019 * (sdl_invert_sign(data->minimum) + data->var[data->Y_AXIS * x + y]) / (sdl_invert_sign(data->minimum) + data->maximum));
 			SDL_SetRenderDrawColor(renderer, COLORS[color_index][0], COLORS[color_index][1], COLORS[color_index][2], 255);
-			SDL_RenderDrawPoint(renderer, time, (NRANGE - range));
+			SDL_RenderDrawPoint(renderer, x, (data->Y_AXIS - y));
 		}
 	}
 
 	// Échelles et grille
-	for (int time = 0; time < NTIME; time ++)
+	for (int x = 0; x < data->X_AXIS; x ++)
 	{
-		for (int range = 0; range < NRANGE; range ++)
+		for (int y = 0; y < data->Y_AXIS; y ++)
 		{
-			// Échelle des altitudes
-			if (!(range % 50) && range && range < NRANGE - 50 && time == NTIME / 2)
+			// Échelle des ordonnées
+			if (!(y % 50) && y && y < data->Y_AXIS - 50 && x == data->X_AXIS / 2)
 			{
-				int alt_val = floor(alt[range]);
-				sprintf(altitude, "%d m", alt_val);
-				sdl_render_text(renderer, jetbrains, 2, NRANGE - (range + 52), altitude, true);
+				
+				int label = floor(data->y_labels[y]);
+				sprintf(ordinate, "%d", label);
+				sdl_render_text(renderer, jetbrains, 2, data->Y_AXIS - (y + 52), ordinate, true);
 			}
 
 			// Grille
-			if (!(range % 50) && range && range < NRANGE - 50 && !(time % 240) && time)
+			if (!(y % 50) && y && y < data->Y_AXIS - 50 && !(x % 240) && x)
 			{
 				SDL_SetRenderDrawColor(renderer, 255, 255, 255, 200);
-				SDL_Rect rect = {time - 5, range - 5, 10, 10};
+				SDL_Rect rect = {x - 5, y - 5, 10, 10};
 				SDL_RenderFillRect(renderer, &rect);
 				SDL_SetRenderDrawColor(renderer, 0, 0, 0, 200);
 				SDL_RenderDrawRect(renderer, &rect);
@@ -76,13 +77,10 @@ void sdl_image(float *data, float *alt, float minimum, float maximum, const bool
 		}
 		
 		// Échelle des temps
-		if (!(time % 240) && time)
+		if (!(x % 240) && x)
 		{
-			int hour_val = floor(time / 240);
-			if (hour_val < 10) sprintf(hour, "0%d:00", hour_val);
-			else sprintf(hour, "%d:00", hour_val);
-
-			sdl_render_text(renderer, jetbrains, time - 60, NRANGE - 55, hour, true);
+			sdl_convert_epoch((time_t) data->x_labels[x], "%H:%M", time);
+			sdl_render_text(renderer, jetbrains, x - 60, data->Y_AXIS - 55, time, true);
 		}
 	}
 
@@ -93,30 +91,30 @@ void sdl_image(float *data, float *alt, float minimum, float maximum, const bool
 		SDL_SetRenderDrawColor(renderer, COLORS[color_index][0], COLORS[color_index][1], COLORS[color_index][2], 255);
 		
 		for (int y = 10; y < 140; y ++)
-			SDL_RenderDrawPoint(renderer, NTIME - 2050 + x, y);
+			SDL_RenderDrawPoint(renderer, data->X_AXIS - 2050 + x, y);
 	}
 	for (int color_index = 0; color_index <= 1020; color_index ++)
 	{
 		if (!(color_index % 255))
 		{
-			float scale_value = minimum + ((color_index * (maximum - minimum)) / 1020);
+			float scale_value = data->minimum + ((color_index * (data->maximum - data->minimum)) / 1020);
 			sprintf(scale, "% 1.2e", scale_value);
-			sdl_render_text(renderer, jetbrains, NTIME - 2040 + 1.75 * color_index, 50, scale, false);
+			sdl_render_text(renderer, jetbrains, data->X_AXIS - 2040 + 1.75 * color_index, 50, scale, false);
 		}
 	}
-	SDL_Rect rect = {NTIME - 2050, 10, 2040, 130};
+	SDL_Rect rect = {data->X_AXIS - 2050, 10, 2040, 130};
 	SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
 	SDL_RenderDrawRect(renderer, &rect);
 
 	// Affichage des métadonnées
 	char metadata[50];
-	sprintf(metadata, "%s %s", var, date);
+	sprintf(metadata, "%s %s", data->varname, data->date);
 	SDL_Color color = {0, 0, 0};
 	surface_text = TTF_RenderText_Solid(jetbrains, metadata, color);
 	texture_text = SDL_CreateTextureFromSurface(renderer, surface_text);
 	int text_width = 0, text_height = 0;
 	SDL_QueryTexture(texture_text, NULL, NULL, &text_width, &text_height);
-	SDL_Rect textrect = {NTIME - 2060 - text_width, 10, text_width, text_height};
+	SDL_Rect textrect = {data->X_AXIS - 2060 - text_width, 10, text_width, text_height};
 	SDL_SetRenderDrawColor(renderer, 255, 255, 255, 80);
 	SDL_RenderFillRect(renderer, &textrect);
 	SDL_RenderCopy(renderer, texture_text, NULL, &textrect);
@@ -124,8 +122,8 @@ void sdl_image(float *data, float *alt, float minimum, float maximum, const bool
 
 	// Exportation au format PNG
 	char filename[100];
-	sprintf(filename, "/home/%s/%s_%s.png", getenv("USER"), var, date);
-	sdl_save_renderer(filename, renderer, NTIME, NRANGE);
+	sprintf(filename, "/home/%s/%s_%s.png", getenv("USER"), data->varname, data->date);
+	sdl_save_renderer(filename, renderer, data->X_AXIS, data->Y_AXIS);
 
 	SDL_DestroyWindow(window);
 	SDL_DestroyRenderer(renderer);
@@ -139,13 +137,20 @@ void sdl_image(float *data, float *alt, float minimum, float maximum, const bool
 }
 
 
-void sdl_measure(float *data, float *alt, float minimum, float maximum, const bool filter, const char *var, char *date, const size_t NTIME, const size_t NRANGE)
+void sdl_measure(struct netcdf_data *data)
 {
 	// Initialisation de la SDL
 	SDL_Window *window = NULL;
 	SDL_Renderer *renderer = NULL;
 	SDL_Init(SDL_INIT_VIDEO);
-	window = SDL_CreateWindow("", 0, 0, NTIME / 3, NRANGE / 3 - 100, SDL_WINDOW_SHOWN);
+
+	int x_factor = ceil((float) data->X_AXIS / 1920.), y_factor = ceil((float) data->Y_AXIS / 1080.);
+	if (x_factor <= 1)
+		x_factor = 1;
+	if (y_factor <= 1)
+		y_factor = 1;
+
+	window = SDL_CreateWindow("", 0, 0, data->X_AXIS / x_factor, data->Y_AXIS / y_factor, SDL_WINDOW_SHOWN);
 	renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_SOFTWARE);
 	SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
 
@@ -154,45 +159,45 @@ void sdl_measure(float *data, float *alt, float minimum, float maximum, const bo
 	SDL_RenderClear(renderer);
 
 	// Traitement des données
-	if (!filter) sdl_get_limits(data, &minimum, &maximum, NTIME, NRANGE);
+	if (!data->filter) sdl_get_limits(data);
 	
 	// Dessin du rendu
-	for (int time = 0; time < NTIME / 3; time ++)
+	for (int x = 0; x < data->X_AXIS / x_factor; x ++)
 	{
-		for (int range = 0; range < NRANGE / 3 - 100; range ++)
+		for (int y = 0; y < data->Y_AXIS / y_factor; y ++)
 		{		
-			if (filter)
+			if (data->filter)
 			{
-				if (data[NRANGE * (time * 3) + (range * 3)] < minimum)
-					data[NRANGE * (time * 3) + (range * 3)] = minimum;
-				if (data[NRANGE * (time * 3) + (range * 3)] > maximum)
-					data[NRANGE * (time * 3) + (range * 3)] = maximum;
+				if (data->var[data->Y_AXIS * (x * x_factor) + (y * y_factor)] < data->minimum)
+					data->var[data->Y_AXIS * (x * x_factor) + (y * y_factor)] = data->minimum;
+				if (data->var[data->Y_AXIS * (x * x_factor) + (y * y_factor)] > data->maximum)
+					data->var[data->Y_AXIS * (x * x_factor) + (y * y_factor)] = data->maximum;
 			}
 
 			// Affichage des données
-			int color_index = 1019 - floor(1019 * (sdl_invert_sign(minimum) + data[NRANGE * (time * 3) + (range * 3)]) / (sdl_invert_sign(minimum) + maximum));
+			int color_index = 1019 - floor(1019 * (sdl_invert_sign(data->minimum) + data->var[data->Y_AXIS * (x * x_factor) + (y * y_factor)]) / (sdl_invert_sign(data->minimum) + data->maximum));
 			SDL_SetRenderDrawColor(renderer, COLORS[color_index][0], COLORS[color_index][1], COLORS[color_index][2], 255);
 			
-			SDL_RenderDrawPoint(renderer, time, (NRANGE / 3 - 100 - range));
+			SDL_RenderDrawPoint(renderer, x, (data->Y_AXIS / y_factor - y));
 		}
 	}
 	SDL_RenderPresent(renderer);
 
 	char metadata[50];
-	sprintf(metadata, "%s %s (mesures)", var, date);
+	sprintf(metadata, "%s %s (mesures)", data->varname, data->date);
 
 	char filename[100];
-	sprintf(filename, "/home/%s/%s_%s.csv", getenv("USER"), var, date);
+	sprintf(filename, "/home/%s/%s_%s.csv", getenv("USER"), data->varname, data->date);
 
-	sdl_loop(renderer, data, alt, filename, var, NRANGE);
+	sdl_loop(renderer, filename, data);
 
 	// Initialisation de la TTF
 	TTF_Init();
 	TTF_Font *jetbrains = TTF_OpenFont("nevada_data/fonts/JetBrainsMono-Bold.ttf", 20);
 	sdl_render_text(renderer, jetbrains, 2, 2, metadata, true);
 
-	sprintf(filename, "/home/%s/%s_mesures_%s.png", getenv("USER"), var, date);
-	sdl_save_renderer(filename, renderer, NTIME / 3, NRANGE / 3 - 100);
+	sprintf(filename, "/home/%s/%s_mesures_%s.png", getenv("USER"), data->varname, data->date);
+	sdl_save_renderer(filename, renderer, data->X_AXIS / x_factor, data->Y_AXIS / y_factor);
 
 	SDL_DestroyWindow(window);
 	SDL_DestroyRenderer(renderer);
@@ -202,16 +207,16 @@ void sdl_measure(float *data, float *alt, float minimum, float maximum, const bo
 }
 
 
-void sdl_get_limits(float *data, float *minimum, float *maximum, const size_t NTIME, const size_t NRANGE)
+void sdl_get_limits(struct netcdf_data *data)
 {	
-	for (int time = 0; time < NTIME; time ++)
+	for (int x = 0; x < data->X_AXIS; x ++)
 	{
-		for (int range = 0; range < NRANGE; range ++)
+		for (int y = 0; y < data->Y_AXIS; y ++)
 		{
-			if (data[NRANGE * time + range] < *minimum)
-				*minimum = data[NRANGE * time + range];
-			if (data[NRANGE * time + range] > *maximum)
-				*maximum = data[NRANGE * time + range];
+			if (data->var[data->Y_AXIS * x + y] < data->minimum)
+				data->minimum = data->var[data->Y_AXIS * x + y];
+			if (data->var[data->Y_AXIS * x + y] > data->maximum)
+				data->maximum = data->var[data->Y_AXIS * x + y];
 		}
 	}
 }
@@ -223,11 +228,16 @@ float sdl_invert_sign(float a)
 }
 
 
-void sdl_loop(SDL_Renderer *renderer, float *data, float *alt, const char *filename, const char *var, const size_t NRANGE)
+void sdl_loop(SDL_Renderer *renderer, const char *filename, struct netcdf_data *data)
 {
 	uint8_t exit = 0;
 	int x, y, index = 1;
 	char csv_row[100], coord_index[100], hour[5], min[5];
+	int x_factor = ceil((float) data->X_AXIS / 1920.), y_factor = ceil((float) data->Y_AXIS / 1080.);	
+	if (x_factor <= 1)
+		x_factor = 1;
+	if (y_factor <= 1)
+		y_factor = 1;
 
 	SDL_Event event;
 	TTF_Init();
@@ -235,7 +245,7 @@ void sdl_loop(SDL_Renderer *renderer, float *data, float *alt, const char *filen
 
 	FILE *file = NULL;
 	file = fopen(filename, "w");
-	sprintf(csv_row, "identifiant; %s; altitude (m); heure\n", var);
+	sprintf(csv_row, "identifiant; %s; %s; %s\n", data->varname, data->x_name, data->y_name);
 	fputs(csv_row, file);
 
 	while (event.type != SDL_QUIT)
@@ -248,20 +258,12 @@ void sdl_loop(SDL_Renderer *renderer, float *data, float *alt, const char *filen
 				x = event.button.x;
 				y = event.button.y;
 
-				float targeted_data = data[NRANGE * (x * 3) + NRANGE - 3 * (y + 100)];
-				int targeted_alt = floor(alt[NRANGE - 3 * (y + 100)]);
-				int targeted_hour = floor(3 * x / 240);
-				int targeted_min = floor(60 * ((3 * x) % 240) / 240);
+				float targeted_data = data->var[data->Y_AXIS * x * x_factor + data->Y_AXIS - y * y_factor];
+				int targeted_x = floor(data->x_labels[x * x_factor]);
+				int targeted_y = floor(data->y_labels[data->Y_AXIS - y_factor * y]);
 
-				if (targeted_hour < 10)
-					sprintf(hour, "0%d", targeted_hour);
-				else
-					sprintf(hour, "%d", targeted_hour);
-
-				if (targeted_min < 10)
-					sprintf(min, "0%d", targeted_min);
-				else
-					sprintf(min, "%d", targeted_min);
+				char date[255];
+				sdl_convert_epoch((time_t) targeted_x, "%H:%M", date);
 
 				SDL_Rect x_rect = {x - 5, y - 1, 10, 3};
 				SDL_Rect y_rect = {x - 1, y - 5, 3, 10};
@@ -272,7 +274,8 @@ void sdl_loop(SDL_Renderer *renderer, float *data, float *alt, const char *filen
 				sprintf(coord_index, "%d", index);
 				sdl_render_text(renderer, jetbrains, x + 2, y + 2, coord_index, true);
 
-				sprintf(csv_row, "%d; %f; %d; %s:%s\n", index, targeted_data, targeted_alt, hour, min);
+
+				sprintf(csv_row, "%d; %f; %s; %d;\n", index, targeted_data, date, targeted_y);
 
 				SDL_RenderPresent(renderer);				
 				fputs(csv_row, file);
@@ -312,11 +315,19 @@ void sdl_render_text(SDL_Renderer *renderer, TTF_Font *font, const int x, const 
 }
 
 
-void sdl_save_renderer(const char *file_name, SDL_Renderer *renderer, const int width, const int height)
+void sdl_save_renderer(const char *filename, SDL_Renderer *renderer, const int width, const int height)
 {
     SDL_Surface *surface = SDL_CreateRGBSurface(0, width, height, 32, 0, 0, 0, 0);
     SDL_RenderReadPixels(renderer, NULL, surface->format->format, surface->pixels, surface->pitch);
-    IMG_SavePNG(surface, file_name);
+    IMG_SavePNG(surface, filename);
     
     SDL_FreeSurface(surface);
+}
+
+
+void sdl_convert_epoch(const time_t epoch, const char *format, char *date)
+{
+	struct tm tm;	
+	tm = *gmtime(&epoch);
+	strftime(date, sizeof(date), format, &tm);
 }
