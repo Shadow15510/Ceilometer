@@ -16,6 +16,7 @@ struct netcdf_data
 	const size_t Y_AXIS;
 	const float *y_labels;
 	const char *y_name;
+	const char *y_unit;
 
 	const char *date;
 

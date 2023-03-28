@@ -35,7 +35,7 @@ void netcdf_get_variables(const char *filename)
 }
 
 
-void netcdf_get_metadata(const char *filename, const char *var, size_t *x_axis, size_t *y_axis, int *year, int *month, int *day)
+void netcdf_get_metadata(const char *filename, const char *var, size_t *x_axis, size_t *y_axis, char *y_unit, int *year, int *month, int *day)
 {
 	int ncid, varid, ndims;
 	int dimsid[NC_MAX_VAR_DIMS];
@@ -47,6 +47,12 @@ void netcdf_get_metadata(const char *filename, const char *var, size_t *x_axis, 
 
 	nc_inq_dimlen(ncid, dimsid[0], x_axis);	
 	nc_inq_dimlen(ncid, dimsid[1], y_axis);
+
+	char y_name[NC_MAX_NAME + 1];
+	int y_id;
+	nc_inq_dim(ncid, dimsid[1], y_name, NULL);
+	nc_inq_varid(ncid, y_name, &y_id);
+	nc_get_att_text(ncid, y_id, "units", y_unit);
 
 	nc_get_att_int(ncid, NC_GLOBAL, "year", year);
 	nc_get_att_int(ncid, NC_GLOBAL, "month", month);

@@ -61,7 +61,7 @@ void sdl_image(struct netcdf_data *data)
 			{
 				
 				int label = floor(data->y_labels[y]);
-				sprintf(ordinate, "%d", label);
+				sprintf(ordinate, "%d %s", label, data->y_unit);
 				sdl_render_text(renderer, jetbrains, 2, data->Y_AXIS - (y + 52), ordinate, true);
 			}
 

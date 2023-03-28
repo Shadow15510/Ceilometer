@@ -76,10 +76,13 @@ G_MODULE_EXPORT void on_button_validation_clicked(void)
 	// Récupération des dimensions et des métadonnées
 	size_t X_AXIS, Y_AXIS;
 	int year, month, day;
+	char y_unit[NC_MAX_NAME + 1];
 
-	netcdf_get_metadata(filename, var, &X_AXIS, &Y_AXIS, &year, &month, &day);
+	netcdf_get_metadata(filename, var, &X_AXIS, &Y_AXIS, y_unit, &year, &month, &day);
 	char date[11];
 	sprintf(date, "%d-%d-%d", day, month, year);
+
+	printf("%d, %d\n", X_AXIS, Y_AXIS);
 
 	// Récupération des données
 	float *data = malloc(X_AXIS * Y_AXIS * sizeof(float));
@@ -119,6 +122,7 @@ G_MODULE_EXPORT void on_button_validation_clicked(void)
 		Y_AXIS,
 		y_labels,
 		dimsname[1],
+		y_unit,
 
 		date,
 
