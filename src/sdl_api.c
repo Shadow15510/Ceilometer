@@ -19,7 +19,7 @@ void sdl_image(struct netcdf_data *data)
 
 	// Initialisation de la TTF
 	TTF_Init();
-	TTF_Font *jetbrains = TTF_OpenFont("nevada_data/fonts/JetBrainsMono-Bold.ttf", 40);
+	TTF_Font *jetbrains = TTF_OpenFont("/usr/bin/nevada_data/fonts/JetBrainsMono-Bold.ttf", 40);
 	
 	SDL_Surface *surface_text = NULL;
 	SDL_Texture *texture_text = NULL;
@@ -193,7 +193,7 @@ void sdl_measure(struct netcdf_data *data)
 
 	// Initialisation de la TTF
 	TTF_Init();
-	TTF_Font *jetbrains = TTF_OpenFont("nevada_data/fonts/JetBrainsMono-Bold.ttf", 20);
+	TTF_Font *jetbrains = TTF_OpenFont("/usr/bin/nevada_data/fonts/JetBrainsMono-Bold.ttf", 20);
 	sdl_render_text(renderer, jetbrains, 2, 2, metadata, true);
 
 	sprintf(filename, "/home/%s/%s_mesures_%s.png", getenv("USER"), data->varname, data->date);
@@ -241,7 +241,7 @@ void sdl_loop(SDL_Renderer *renderer, const char *filename, struct netcdf_data *
 
 	SDL_Event event;
 	TTF_Init();
-	TTF_Font *jetbrains = TTF_OpenFont("nevada_data/fonts/JetBrainsMono-Bold.ttf", 20);
+	TTF_Font *jetbrains = TTF_OpenFont("/usr/bin/nevada_data/fonts/JetBrainsMono-Bold.ttf", 20);
 
 	FILE *file = NULL;
 	file = fopen(filename, "w");
