@@ -49,6 +49,7 @@ void netcdf_get_metadata(const char *filename, const char *var, size_t *x_axis, 
 	nc_inq_dimlen(ncid, dimsid[1], y_axis);
 
 	char y_name[NC_MAX_NAME + 1];
+
 	int y_id;
 	nc_inq_dim(ncid, dimsid[1], y_name, NULL);
 	nc_inq_varid(ncid, y_name, &y_id);

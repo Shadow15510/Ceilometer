@@ -37,10 +37,21 @@ G_MODULE_EXPORT void on_file_netcdf_file_set(void)
 
 G_MODULE_EXPORT void on_check_filter_toggled(void)
 {
+	GtkWidget *sp_min = GTK_WIDGET(gtk_builder_get_object(builder, "spin_minimum"));
+	GtkWidget *sp_max = GTK_WIDGET(gtk_builder_get_object(builder, "spin_maximum"));
+
 	if (filter)
+	{
+		gtk_widget_set_sensitive(sp_min, false);
+		gtk_widget_set_sensitive(sp_max, false);
 		filter = false;
+	}
 	else
+	{
+		gtk_widget_set_sensitive(sp_min, true);
+		gtk_widget_set_sensitive(sp_max, true);
 		filter = true;
+	}
 }
 
 
@@ -76,13 +87,11 @@ G_MODULE_EXPORT void on_button_validation_clicked(void)
 	// Récupération des dimensions et des métadonnées
 	size_t X_AXIS, Y_AXIS;
 	int year, month, day;
-	char y_unit[NC_MAX_NAME + 1];
+	char y_unit[NC_MAX_NAME + 1] = {0};
 
 	netcdf_get_metadata(filename, var, &X_AXIS, &Y_AXIS, y_unit, &year, &month, &day);
 	char date[11];
 	sprintf(date, "%d-%d-%d", day, month, year);
-
-	printf("%d, %d\n", X_AXIS, Y_AXIS);
 
 	// Récupération des données
 	float *data = malloc(X_AXIS * Y_AXIS * sizeof(float));

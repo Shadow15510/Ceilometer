@@ -23,17 +23,7 @@ clean:
 	rm -rf build	
 
 clear:
-	sudo echo "Désinstallation de NEVADA"
-	sudo rm -r /usr/bin/nevada_data
-	sudo rm /usr/bin/nevada
-	sudo rm ~/.local/share/applications/nevada.desktop
+	bash uninstall.sh
 
 install:
-	sudo echo "Installation de NEVADA"
-	sudo cp -r nevada_data /usr/bin/
-	sudo mv nevada /usr/bin/nevada
-	echo -e "[Desktop Entry]\nVersion=1.0\nType=Application\nName=Nevada\nComment=NetCDF Explorer and Visualizer for Atmospheric Data Analysis\nIcon=/usr/bin/nevada_data/netcdf-logo.png\nExec=nevada\nPath=/usr/bin\nActions=\nCategories=Utility" > ~/.local/share/applications/nevada.desktop
-
-
-
-
+	bash install.sh
