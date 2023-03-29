@@ -46,7 +46,14 @@ void sdl_image(struct netcdf_data *data)
 			}
 			// Affichage des données
 			int color_index = 1019 - floor(1019 * (sdl_invert_sign(data->minimum) + data->var[data->Y_AXIS * x + y]) / (sdl_invert_sign(data->minimum) + data->maximum));
-			SDL_SetRenderDrawColor(renderer, COLORS[color_index][0], COLORS[color_index][1], COLORS[color_index][2], 255);
+			uint8_t color[3] = {255, 255, 255};
+			if (color_index >= 0 && color_index < 1020)
+			{
+				for (int i = 0; i < 3; i ++)
+					color[i] = COLORS[color_index][i];
+			}
+
+			SDL_SetRenderDrawColor(renderer, color[0], color[1], color[2], 255);
 			SDL_RenderDrawPoint(renderer, x, (data->Y_AXIS - y));
 		}
 	}
@@ -176,8 +183,14 @@ void sdl_measure(struct netcdf_data *data)
 
 			// Affichage des données
 			int color_index = 1019 - floor(1019 * (sdl_invert_sign(data->minimum) + data->var[data->Y_AXIS * (x * x_factor) + (y * y_factor)]) / (sdl_invert_sign(data->minimum) + data->maximum));
-			SDL_SetRenderDrawColor(renderer, COLORS[color_index][0], COLORS[color_index][1], COLORS[color_index][2], 255);
-			
+			uint8_t color[3] = {255, 255, 255};
+			if (color_index >= 0 && color_index < 1020)
+			{
+				for (int i = 0; i < 3; i ++)
+					color[i] = COLORS[color_index][i];
+			}
+
+			SDL_SetRenderDrawColor(renderer, color[0], color[1], color[2], 255);
 			SDL_RenderDrawPoint(renderer, x, (data->Y_AXIS / y_factor - y));
 		}
 	}
