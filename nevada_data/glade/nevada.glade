@@ -238,6 +238,7 @@
               <object class="GtkComboBoxText" id="combo_vars">
                 <property name="visible">True</property>
                 <property name="can-focus">False</property>
+                <property name="tooltip-text" translatable="yes">Variable à analyser</property>
               </object>
               <packing>
                 <property name="left-attach">0</property>
