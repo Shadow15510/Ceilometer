@@ -30,7 +30,7 @@ void sdl_render_text(SDL_Renderer *renderer, TTF_Font *font, const int x, const 
 // sdl_save_renderer : exporte le renderer en png
 void sdl_save_renderer(const char *file_name, SDL_Renderer *renderer, const int width, const int height);
 
-
+// sdl_convert_epoch : convertit le epoch donné dans le format spécifié
 void sdl_convert_epoch(const time_t epoch, const char *format, char *date);
 
 #endif /* _SDL_API_H */

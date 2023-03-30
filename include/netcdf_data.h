@@ -12,10 +12,12 @@ struct netcdf_data
 	const size_t X_AXIS;
 	const float *x_labels;
 	const char *x_name;
+	const float factor_x;
 
 	const size_t Y_AXIS;
 	const float *y_labels;
 	const char *y_name;
+	const float factor_y;
 	const char *y_unit;
 
 	const char *date;

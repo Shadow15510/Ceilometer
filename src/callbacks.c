@@ -113,6 +113,12 @@ G_MODULE_EXPORT void on_button_validation_clicked(void)
 		if (maximum <= minimum) return;
 	}
 
+	float factor_x = 1, factor_y = 1;
+	GtkSpinButton *spin_factor_x = GTK_SPIN_BUTTON(gtk_builder_get_object(builder, "spin_factor_x"));
+	factor_x = (float) gtk_spin_button_get_value(spin_factor_x);
+	GtkSpinButton *spin_factor_y = GTK_SPIN_BUTTON(gtk_builder_get_object(builder, "spin_factor_y"));
+	factor_y = (float) gtk_spin_button_get_value(spin_factor_y);
+
 	// Mise à jour du statut
 	GtkLabel *label_status = GTK_LABEL(gtk_builder_get_object(builder, "label_status"));
 	gtk_label_set_text(label_status, "en cours de traitement");
@@ -127,10 +133,12 @@ G_MODULE_EXPORT void on_button_validation_clicked(void)
 		X_AXIS,
 		x_labels,
 		dimsname[0],
+		factor_x,
 
 		Y_AXIS,
 		y_labels,
 		dimsname[1],
+		factor_y,
 		y_unit,
 
 		date,
