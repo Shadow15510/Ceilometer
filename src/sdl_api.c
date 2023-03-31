@@ -137,7 +137,7 @@ void sdl_labels(struct netcdf_data *data, SDL_Renderer *renderer, const int WIDT
 			if (!(y % 50) && y && y < HEIGHT - 50 && !(x % 240) && x)
 			{
 				SDL_SetRenderDrawColor(renderer, 255, 255, 255, 200);
-				SDL_Rect rect = {x - 5, y - 5, 10, 10};
+				SDL_Rect rect = {x - 5, HEIGHT - y - 32, 10, 10};
 				SDL_RenderFillRect(renderer, &rect);
 				SDL_SetRenderDrawColor(renderer, 0, 0, 0, 200);
 				SDL_RenderDrawRect(renderer, &rect);
@@ -238,7 +238,6 @@ void sdl_loop(SDL_Renderer *renderer, const char *filename, struct netcdf_data *
 
 				sprintf(coord_index, "%d", index);
 				sdl_render_text(renderer, jetbrains, x + 2, y + 2, coord_index, true);
-
 
 				sprintf(csv_row, "%d; %f; %s; %d;\n", index, targeted_data, date, targeted_y);
 
