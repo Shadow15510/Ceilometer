@@ -177,10 +177,7 @@ G_MODULE_EXPORT void on_button_validation_clicked(void)
 	};
 
 	// Boucle principale
-	if (image_mode)
-		sdl_image(&netcdf_data);
-	else
-		sdl_measure(&netcdf_data);
+	sdl_render(&netcdf_data, image_mode);
 
 	// Désallocation des ressources
 	free(data);

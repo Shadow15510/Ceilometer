@@ -14,14 +14,14 @@ struct netcdf_data
 	const char *x_name;
 	const int x_min;
 	const int x_max;
-	const float x_factor;
+	float x_factor;
 
 	const size_t Y_AXIS;
 	const float *y_labels;
 	const char *y_name;
 	const int y_min;
 	const int y_max;
-	const float y_factor;
+	float y_factor;
 	const char *y_unit;
 
 	const char *date;
