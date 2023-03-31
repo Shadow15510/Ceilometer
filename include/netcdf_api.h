@@ -5,6 +5,7 @@
 // netcdf_get_variables : récupère les variables du fichier donné et met à jour la combo box
 void netcdf_get_variables(const char *filename);
 
+// netcdf_set_fits : adapte les bornes des valeurs minimales et maximales en fonction de la variable
 void netcdf_set_fits(const char *filename, const char *var);
 
 // netcdf_get_dim : extrait les dimensions des axes et la date

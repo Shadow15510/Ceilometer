@@ -32,16 +32,16 @@ void netcdf_get_variables(const char *filename)
 	}
 
 	GtkAdjustment *fit_x_min = GTK_ADJUSTMENT(gtk_builder_get_object(builder, "fit_x_min"));
-	gtk_adjustment_configure(fit_x_min, 0, 0, 100, 1, 10, 0);
+	gtk_adjustment_configure(fit_x_min, 0, 0, 0, 1, 10, 0);
 
 	GtkAdjustment *fit_x_max = GTK_ADJUSTMENT(gtk_builder_get_object(builder, "fit_x_max"));
-	gtk_adjustment_configure(fit_x_max, 0, 0, 100, 1, 10, 0);
+	gtk_adjustment_configure(fit_x_max, 0, 0, 0, 1, 10, 0);
 
 	GtkAdjustment *fit_y_min = GTK_ADJUSTMENT(gtk_builder_get_object(builder, "fit_y_min"));
-	gtk_adjustment_configure(fit_y_min, 0, 0, 100, 1, 10, 0);
+	gtk_adjustment_configure(fit_y_min, 0, 0, 0, 1, 10, 0);
 
 	GtkAdjustment *fit_y_max = GTK_ADJUSTMENT(gtk_builder_get_object(builder, "fit_y_max"));
-	gtk_adjustment_configure(fit_y_max, 0, 0, 100, 1, 10, 0);
+	gtk_adjustment_configure(fit_y_max, 0, 0, 0, 1, 10, 0);
 
 	nc_close(ncid);
 }

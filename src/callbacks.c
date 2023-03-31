@@ -147,7 +147,7 @@ G_MODULE_EXPORT void on_button_validation_clicked(void)
 	GtkLabel *label_status = GTK_LABEL(gtk_builder_get_object(builder, "label_status"));
 	gtk_label_set_text(label_status, "en cours de traitement");
 	gtk_main_iteration();
-	sleep(0.1);
+	sleep(0.2);
 	gtk_main_iteration();
 
 	struct netcdf_data netcdf_data = {
@@ -187,7 +187,7 @@ G_MODULE_EXPORT void on_button_validation_clicked(void)
 	// Mise à jour du statut
 	gtk_label_set_text(label_status, "en attente de validation");
 	gtk_main_iteration();
-	sleep(0.1);
+	sleep(0.2);
 	gtk_main_iteration();
 
 }
