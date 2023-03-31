@@ -31,9 +31,51 @@ void netcdf_get_variables(const char *filename)
 			gtk_combo_box_text_append(GTK_COMBO_BOX_TEXT(combo), NULL, varname);
 	}
 
+	GtkAdjustment *fit_x_min = GTK_ADJUSTMENT(gtk_builder_get_object(builder, "fit_x_min"));
+	gtk_adjustment_configure(fit_x_min, 0, 0, 100, 1, 10, 0);
+
+	GtkAdjustment *fit_x_max = GTK_ADJUSTMENT(gtk_builder_get_object(builder, "fit_x_max"));
+	gtk_adjustment_configure(fit_x_max, 0, 0, 100, 1, 10, 0);
+
+	GtkAdjustment *fit_y_min = GTK_ADJUSTMENT(gtk_builder_get_object(builder, "fit_y_min"));
+	gtk_adjustment_configure(fit_y_min, 0, 0, 100, 1, 10, 0);
+
+	GtkAdjustment *fit_y_max = GTK_ADJUSTMENT(gtk_builder_get_object(builder, "fit_y_max"));
+	gtk_adjustment_configure(fit_y_max, 0, 0, 100, 1, 10, 0);
+
 	nc_close(ncid);
 }
 
+
+void netcdf_set_fits(const char *filename, const char *var)
+{
+	int ncid, varid, ndims;
+	size_t x_axis, y_axis;
+	int dimsid[NC_MAX_VAR_DIMS];
+
+	nc_open(filename, NC_NOWRITE, &ncid);
+
+	nc_inq_varid(ncid, var, &varid);
+	nc_inq_var(ncid, varid, NULL, NULL, &ndims, dimsid, NULL);
+
+	nc_inq_dimlen(ncid, dimsid[0], &x_axis);	
+	nc_inq_dimlen(ncid, dimsid[1], &y_axis);
+
+	nc_close(ncid);	
+
+	GtkAdjustment *fit_x_min = GTK_ADJUSTMENT(gtk_builder_get_object(builder, "fit_x_min"));
+	gtk_adjustment_configure(fit_x_min, 0, 0, x_axis, 1, 10, 0);
+
+	GtkAdjustment *fit_x_max = GTK_ADJUSTMENT(gtk_builder_get_object(builder, "fit_x_max"));
+	gtk_adjustment_configure(fit_x_max, x_axis, 0, x_axis, 1, 10, 0);
+
+	GtkAdjustment *fit_y_min = GTK_ADJUSTMENT(gtk_builder_get_object(builder, "fit_y_min"));
+	gtk_adjustment_configure(fit_y_min, 0, 0, y_axis, 1, 10, 0);
+
+	GtkAdjustment *fit_y_max = GTK_ADJUSTMENT(gtk_builder_get_object(builder, "fit_y_max"));
+	gtk_adjustment_configure(fit_y_max, y_axis, 0, y_axis, 1, 10, 0);
+
+}
 
 void netcdf_get_metadata(const char *filename, const char *var, size_t *x_axis, size_t *y_axis, char *y_unit, int *year, int *month, int *day)
 {

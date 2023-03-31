@@ -35,6 +35,18 @@ G_MODULE_EXPORT void on_file_netcdf_file_set(void)
 }
 
 
+G_MODULE_EXPORT void on_combo_vars_changed(void)
+{
+	GtkFileChooser *file_chooser = GTK_FILE_CHOOSER(gtk_builder_get_object(builder, "file_netcdf"));
+	const char *filename = gtk_file_chooser_get_filename(file_chooser);
+
+	GtkComboBoxText *combo = GTK_COMBO_BOX_TEXT(gtk_builder_get_object(builder, "combo_vars"));
+	const char *var = gtk_combo_box_text_get_active_text(combo);
+
+	netcdf_set_fits(filename, var);	
+}
+
+
 G_MODULE_EXPORT void on_check_filter_toggled(void)
 {
 	GtkWidget *sp_min = GTK_WIDGET(gtk_builder_get_object(builder, "spin_minimum"));
@@ -113,6 +125,18 @@ G_MODULE_EXPORT void on_button_validation_clicked(void)
 		if (maximum <= minimum) return;
 	}
 
+	// Récupération des limites
+	GtkSpinButton *spin_x_min = GTK_SPIN_BUTTON(gtk_builder_get_object(builder, "spin_x_min"));
+	int x_min = (int) gtk_spin_button_get_value(spin_x_min);
+	GtkSpinButton *spin_x_max = GTK_SPIN_BUTTON(gtk_builder_get_object(builder, "spin_x_max"));
+	int x_max = (int) gtk_spin_button_get_value(spin_x_max);
+	GtkSpinButton *spin_y_min = GTK_SPIN_BUTTON(gtk_builder_get_object(builder, "spin_y_min"));
+	int y_min = (int) gtk_spin_button_get_value(spin_y_min);
+	GtkSpinButton *spin_y_max = GTK_SPIN_BUTTON(gtk_builder_get_object(builder, "spin_y_max"));
+	int y_max = (int) gtk_spin_button_get_value(spin_y_max);
+	if (x_min >= x_max || y_min >= y_max)
+		return ;
+
 	float factor_x = 1, factor_y = 1;
 	GtkSpinButton *spin_factor_x = GTK_SPIN_BUTTON(gtk_builder_get_object(builder, "spin_factor_x"));
 	factor_x = (float) gtk_spin_button_get_value(spin_factor_x);
@@ -133,11 +157,15 @@ G_MODULE_EXPORT void on_button_validation_clicked(void)
 		X_AXIS,
 		x_labels,
 		dimsname[0],
+		x_min,
+		x_max,
 		factor_x,
 
 		Y_AXIS,
 		y_labels,
 		dimsname[1],
+		y_min,
+		y_max,
 		factor_y,
 		y_unit,
 

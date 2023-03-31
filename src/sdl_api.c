@@ -9,11 +9,14 @@
 
 void sdl_image(struct netcdf_data *data)
 {
+	const int WIDTH = floor(data->x_factor * (data->x_max - data->x_min));
+	const int HEIGHT = floor(data->y_factor * (data->y_max - data->y_min));
+
 	// Initialisation de la SDL
 	SDL_Window *window = NULL;
 	SDL_Renderer *renderer = NULL;
 	SDL_Init(SDL_INIT_VIDEO);
-	window = SDL_CreateWindow("", 0, 0, data->factor_x * data->X_AXIS, data->factor_y * data->Y_AXIS, SDL_WINDOW_HIDDEN);
+	window = SDL_CreateWindow("", 0, 0, WIDTH, HEIGHT, SDL_WINDOW_HIDDEN);
 	renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_SOFTWARE);
 	SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
 
@@ -33,11 +36,14 @@ void sdl_image(struct netcdf_data *data)
 	if (!data->filter) sdl_get_limits(data);
 
 	// Dessin du rendu
-	for (int x = 0; x < data->factor_x * data->X_AXIS; x ++)
+	for (int x = 0; x < WIDTH; x ++)
 	{
-		for (int y = 0; y < data->factor_y * data->Y_AXIS; y ++)
+		for (int y = 0; y < HEIGHT; y ++)
 		{
-			int index = floor(data->Y_AXIS * (x / data->factor_x) + (y / data->factor_y));
+			int data_x = x / data->x_factor + data->x_min;
+			int data_y = y / data->y_factor + data->y_min;
+
+			int index = floor(data->Y_AXIS * data_x + data_y);
 			if (data->filter)
 			{
 				if (data->var[index] < data->minimum)
@@ -47,35 +53,30 @@ void sdl_image(struct netcdf_data *data)
 			}
 			// Affichage des données
 			int color_index = 1019 - floor(1019 * (sdl_invert_sign(data->minimum) + data->var[index]) / (sdl_invert_sign(data->minimum) + data->maximum));
-			uint8_t color[3] = {255, 255, 255};
 			if (color_index >= 0 && color_index < 1020)
 			{
-				for (int i = 0; i < 3; i ++)
-					color[i] = COLORS[color_index][i];
+				SDL_SetRenderDrawColor(renderer, COLORS[color_index][0], COLORS[color_index][1], COLORS[color_index][2], 255);
+				SDL_RenderDrawPoint(renderer, x, HEIGHT - y);
 			}
-
-			SDL_SetRenderDrawColor(renderer, color[0], color[1], color[2], 255);
-			SDL_RenderDrawPoint(renderer, x, (data->factor_y * data->Y_AXIS - y));
 		}
 	}
 
 	// Échelles et grille
-	
-	for (int x = 0; x < data->factor_x * data->X_AXIS; x ++)
+	for (int x = 0; x < WIDTH; x ++)
 	{
-		for (int y = 0; y < data->factor_y * data->Y_AXIS; y ++)
+		for (int y = 0; y < HEIGHT; y ++)
 		{
 			// Échelle des ordonnées
-			if (!(y % 50) && y && y < data->factor_y * data->Y_AXIS - 50 && x == data->factor_x * data->X_AXIS / 2)
+			if (!(y % 50) && y && y < HEIGHT - 50 && x == WIDTH / 2)
 			{
 				
-				int label = floor(data->y_labels[(int) floor(y / data->factor_y)]);
+				int label = floor(data->y_labels[(int) floor(y / data->y_factor + data->y_min)]);
 				sprintf(ordinate, "%d %s", label, data->y_unit);
-				sdl_render_text(renderer, jetbrains, 2, data->factor_y * data->Y_AXIS - (y + 52), ordinate, true);
+				sdl_render_text(renderer, jetbrains, 2, HEIGHT - (y + 52), ordinate, true);
 			}
 
 			// Grille
-			if (!(y % 50) && y && y < data->factor_y * data->Y_AXIS - 50 && !(x % 240) && x)
+			if (!(y % 50) && y && y < HEIGHT - 50 && !(x % 240) && x)
 			{
 				SDL_SetRenderDrawColor(renderer, 255, 255, 255, 200);
 				SDL_Rect rect = {x - 5, y - 5, 10, 10};
@@ -88,8 +89,8 @@ void sdl_image(struct netcdf_data *data)
 		// Échelle des temps
 		if (!(x % 240) && x)
 		{
-			sdl_convert_epoch((time_t) data->x_labels[(int) floor(x / data->factor_x)], "%H:%M", time);
-			sdl_render_text(renderer, jetbrains, x - 60, data->factor_y * data->Y_AXIS - 55, time, true);
+			sdl_convert_epoch((time_t) data->x_labels[(int) floor(x / data->x_factor + data->x_min)], "%H:%M", time);
+			sdl_render_text(renderer, jetbrains, x - 60, HEIGHT - 55, time, true);
 		}
 	}
 
@@ -100,7 +101,7 @@ void sdl_image(struct netcdf_data *data)
 		SDL_SetRenderDrawColor(renderer, COLORS[color_index][0], COLORS[color_index][1], COLORS[color_index][2], 255);
 		
 		for (int y = 10; y < 140; y ++)
-			SDL_RenderDrawPoint(renderer, data->factor_x * data->X_AXIS - 2050 + x, y);
+			SDL_RenderDrawPoint(renderer, WIDTH - 2050 + x, y);
 	}
 	for (int color_index = 0; color_index <= 1020; color_index ++)
 	{
@@ -108,10 +109,10 @@ void sdl_image(struct netcdf_data *data)
 		{
 			float scale_value = data->minimum + ((color_index * (data->maximum - data->minimum)) / 1020);
 			sprintf(scale, "% 1.2e", scale_value);
-			sdl_render_text(renderer, jetbrains, data->factor_x * data->X_AXIS - 2040 + 1.75 * color_index, 50, scale, false);
+			sdl_render_text(renderer, jetbrains, WIDTH - 2040 + 1.75 * color_index, 50, scale, false);
 		}
 	}
-	SDL_Rect rect = {data->factor_x * data->X_AXIS - 2050, 10, 2040, 130};
+	SDL_Rect rect = {WIDTH - 2050, 10, 2040, 130};
 	SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
 	SDL_RenderDrawRect(renderer, &rect);
 
@@ -123,7 +124,7 @@ void sdl_image(struct netcdf_data *data)
 	texture_text = SDL_CreateTextureFromSurface(renderer, surface_text);
 	int text_width = 0, text_height = 0;
 	SDL_QueryTexture(texture_text, NULL, NULL, &text_width, &text_height);
-	SDL_Rect textrect = {data->factor_x * data->X_AXIS - 2060 - text_width, 10, text_width, text_height};
+	SDL_Rect textrect = {WIDTH - 2060 - text_width, 10, text_width, text_height};
 	SDL_SetRenderDrawColor(renderer, 255, 255, 255, 80);
 	SDL_RenderFillRect(renderer, &textrect);
 	SDL_RenderCopy(renderer, texture_text, NULL, &textrect);
@@ -131,7 +132,7 @@ void sdl_image(struct netcdf_data *data)
 	// Exportation au format PNG
 	char filename[100];
 	sprintf(filename, "/home/%s/%s_%s.png", getenv("USER"), data->varname, data->date);
-	sdl_save_renderer(filename, renderer, data->factor_x * data->X_AXIS, data->factor_y * data->Y_AXIS);
+	sdl_save_renderer(filename, renderer, WIDTH, HEIGHT);
 
 	SDL_DestroyWindow(window);
 	SDL_DestroyRenderer(renderer);

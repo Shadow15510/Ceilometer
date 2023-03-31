@@ -20,7 +20,7 @@ Pour devez avoir les paquets suivants :
 ### Installation
 Pour installer NEVADA, il faut suivre la démarche standard :
 ```
-$ git clone 
+$ git clone https://github.com/Shadow15510/NEVADA.git 
 $ cd NEVADA
 $ make
 $ make install
