@@ -1,5 +1,6 @@
-#include <stdio.h>
 #include <gtk/gtk.h>
+#include <stdio.h>
+
 #include "include/main.h"
 #include "include/callbacks.h"
 

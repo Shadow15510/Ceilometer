@@ -1,5 +1,6 @@
 #include "include/colors.h"
 
+
 const uint8_t COLORS[1020][3] = {
 {255, 0, 0},
 {255, 1, 0},

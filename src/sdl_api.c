@@ -1,6 +1,6 @@
+#include <math.h>
 #include <stdio.h>
 #include <string.h>
-#include <math.h>
 #include <SDL2/SDL_image.h>
 
 #include "include/sdl_api.h"
