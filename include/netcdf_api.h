@@ -9,7 +9,7 @@ void netcdf_get_variables(const char *filename);
 void netcdf_set_fits(const char *filename, const char *var);
 
 // netcdf_get_dim : extrait les dimensions des axes et la date
-void netcdf_get_metadata(const char *filename, const char *var, size_t *x_axis, size_t *y_axis, char *y_unit, int *year, int *month, int *day);
+void netcdf_get_metadata(const char *filename, const char *var, size_t *x_axis, size_t *y_axis, char *y_unit, char *name);
 
 // netcdf_get_data : extrait la variable donnée et les axes associés
 void netcdf_get_data(const char *filename, const char *var, float *data, float *x_labels, float *y_labels, char dimsname[2][NC_MAX_NAME + 1]);

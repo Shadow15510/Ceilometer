@@ -77,7 +77,7 @@ void netcdf_set_fits(const char *filename, const char *var)
 
 }
 
-void netcdf_get_metadata(const char *filename, const char *var, size_t *x_axis, size_t *y_axis, char *y_unit, int *year, int *month, int *day)
+void netcdf_get_metadata(const char *filename, const char *var, size_t *x_axis, size_t *y_axis, char *y_unit, char *date)
 {
 	int ncid, varid, ndims;
 	int dimsid[NC_MAX_VAR_DIMS];
@@ -97,10 +97,19 @@ void netcdf_get_metadata(const char *filename, const char *var, size_t *x_axis, 
 	nc_inq_varid(ncid, y_name, &y_id);
 	nc_get_att_text(ncid, y_id, "units", y_unit);
 
-	nc_get_att_int(ncid, NC_GLOBAL, "year", year);
-	nc_get_att_int(ncid, NC_GLOBAL, "month", month);
-	nc_get_att_int(ncid, NC_GLOBAL, "day", day);
-	
+	int retval;
+	if (nc_get_att_text(ncid, NC_GLOBAL, "date", date))
+	{	
+		int day, month, year;
+		retval = nc_get_att_int(ncid, NC_GLOBAL, "year", &year);
+		if (!retval)
+			retval = nc_get_att_int(ncid, NC_GLOBAL, "month", &month);
+		if (!retval)
+			nc_get_att_int(ncid, NC_GLOBAL, "day", &day);
+		if (!retval)
+			sprintf(date, "%d-%d-%d", year, month, day);
+	}
+		
 	nc_close(ncid);
 }
 

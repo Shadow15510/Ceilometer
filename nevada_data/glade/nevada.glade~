@@ -36,9 +36,9 @@
   </object>
   <object class="GtkAdjustment" id="facteur_x">
     <property name="lower">0.25</property>
-    <property name="upper">100</property>
+    <property name="upper">500</property>
     <property name="value">1</property>
-    <property name="step-increment">1</property>
+    <property name="step-increment">0.25</property>
     <property name="page-increment">10</property>
   </object>
   <object class="GtkAdjustment" id="facteur_y">
@@ -378,7 +378,7 @@
                       <object class="GtkSpinButton" id="spin_factor_x">
                         <property name="visible">True</property>
                         <property name="can-focus">True</property>
-                        <property name="tooltip-text" translatable="yes">Facteur à appliquer sur les abcsisses</property>
+                        <property name="tooltip-text" translatable="yes">Facteur à appliquer sur les abcisses</property>
                         <property name="text" translatable="yes">1,00</property>
                         <property name="adjustment">facteur_x</property>
                         <property name="climb-rate">0.10</property>

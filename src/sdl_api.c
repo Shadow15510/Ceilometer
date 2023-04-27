@@ -239,7 +239,7 @@ void sdl_loop(SDL_Renderer *renderer, const char *filename, struct netcdf_data *
 				sprintf(coord_index, "%d", index);
 				sdl_render_text(renderer, jetbrains, x + 2, y + 2, coord_index, true);
 
-				sprintf(csv_row, "%d; %f; %s; %d;\n", index, targeted_data, date, targeted_y);
+				sprintf(csv_row, "%d; %f; %s; %d\n", index, targeted_data, date, targeted_y);
 
 				SDL_RenderPresent(renderer);				
 				fputs(csv_row, file);
