@@ -1,3 +1,4 @@
+#include <gtk/gtk.h>
 #include <math.h>
 #include <stdio.h>
 #include <string.h>
@@ -46,9 +47,12 @@ void sdl_render(struct netcdf_data *data, const bool image_mode)
 	// Traitement des données
 	if (!data->filter) sdl_get_limits(data);
 
+	//gtk_main_iteration();
+	
 	// Dessin du rendu
 	for (int x = 0; x < WIDTH; x ++)
 	{
+		gtk_main_iteration_do(false);
 		for (int y = 0; y < HEIGHT; y ++)
 		{
 			int data_x = x / data->x_factor + data->x_min;

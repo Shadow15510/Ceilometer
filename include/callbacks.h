@@ -12,5 +12,4 @@ G_MODULE_EXPORT void on_radio_image_toggled(void);
 G_MODULE_EXPORT void on_radio_measure_toggled(void);
 G_MODULE_EXPORT void on_button_validation_clicked(void);
 
-
 #endif /* _CALLBACKS_H */

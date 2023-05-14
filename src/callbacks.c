@@ -1,3 +1,4 @@
+#include <gdk/gdk.h>
 #include <netcdf.h>
 #include <stdbool.h>
 #include <stdio.h>
@@ -12,6 +13,9 @@
 
 
 extern GtkBuilder *builder;
+extern GdkWindow *G_WINDOW;
+extern GdkCursor *G_WAIT_CURSOR;
+extern GdkCursor *G_DEFAULT_CURSOR;
 bool is_file_selected = false;
 bool filter = true;
 bool image_mode = true;
@@ -101,9 +105,7 @@ G_MODULE_EXPORT void on_button_validation_clicked(void)
 	int year, month, day;
 	char y_unit[NC_MAX_NAME + 1] = {0};
 	char date[11] = {0};
-	
 	netcdf_get_metadata(filename, var, &X_AXIS, &Y_AXIS, y_unit, date);
-	
 
 	// Récupération des données
 	float *data = malloc(X_AXIS * Y_AXIS * sizeof(float));
@@ -137,18 +139,13 @@ G_MODULE_EXPORT void on_button_validation_clicked(void)
 	if (x_min >= x_max || y_min >= y_max)
 		return ;
 
+	gdk_window_set_cursor(G_WINDOW, G_WAIT_CURSOR);
+
 	float factor_x = 1, factor_y = 1;
 	GtkSpinButton *spin_factor_x = GTK_SPIN_BUTTON(gtk_builder_get_object(builder, "spin_factor_x"));
 	factor_x = (float) gtk_spin_button_get_value(spin_factor_x);
 	GtkSpinButton *spin_factor_y = GTK_SPIN_BUTTON(gtk_builder_get_object(builder, "spin_factor_y"));
 	factor_y = (float) gtk_spin_button_get_value(spin_factor_y);
-
-	// Mise à jour du statut
-	GtkLabel *label_status = GTK_LABEL(gtk_builder_get_object(builder, "label_status"));
-	gtk_label_set_text(label_status, "en cours de traitement");
-	gtk_main_iteration();
-	sleep(0.2);
-	gtk_main_iteration();
 
 	struct netcdf_data netcdf_data = {
 		data,
@@ -179,15 +176,11 @@ G_MODULE_EXPORT void on_button_validation_clicked(void)
 	// Boucle principale
 	sdl_render(&netcdf_data, image_mode);
 
+
 	// Désallocation des ressources
 	free(data);
 	free(x_labels);
 	free(y_labels);
 
-	// Mise à jour du statut
-	gtk_label_set_text(label_status, "en attente de validation");
-	gtk_main_iteration();
-	sleep(0.2);
-	gtk_main_iteration();
-
+	gdk_window_set_cursor(G_WINDOW, G_DEFAULT_CURSOR);
 }

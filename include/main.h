@@ -4,5 +4,7 @@
 
 int main(int argc, char *argv[]);
 
+static void window_realize(GtkWidget *window, gpointer data);
+
 
 #endif /* _MAIN_H */
