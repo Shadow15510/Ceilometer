@@ -3,10 +3,13 @@
 #include <stdio.h>
 #include <string.h>
 #include <SDL2/SDL_image.h>
+#include <time.h>
 
 #include "include/sdl_api.h"
 #include "include/colors.h"
 
+
+extern GtkBuilder *builder;
 
 void sdl_render(struct netcdf_data *data, const bool image_mode)
 {
@@ -47,11 +50,12 @@ void sdl_render(struct netcdf_data *data, const bool image_mode)
 	// Traitement des données
 	if (!data->filter) sdl_get_limits(data);
 
-	//gtk_main_iteration();
-	
+	GtkProgressBar *pbar = GTK_PROGRESS_BAR(gtk_builder_get_object(builder, "progress_bar"));
+
 	// Dessin du rendu
 	for (int x = 0; x < WIDTH; x ++)
 	{
+		gtk_progress_bar_set_fraction(pbar, (gdouble) (x + 1) / WIDTH);
 		gtk_main_iteration_do(false);
 		for (int y = 0; y < HEIGHT; y ++)
 		{
@@ -77,7 +81,7 @@ void sdl_render(struct netcdf_data *data, const bool image_mode)
 	}
 
 	if (image_mode)
-	{
+	{				
 		sdl_labels(data, renderer, WIDTH, HEIGHT);
 
 		// Exportation au format PNG
@@ -306,17 +310,17 @@ float sdl_invert_sign(float a)
 
 void sdl_save_renderer(const char *filename, SDL_Renderer *renderer, const int width, const int height)
 {
-    SDL_Surface *surface = SDL_CreateRGBSurface(0, width, height, 32, 0, 0, 0, 0);
-    SDL_RenderReadPixels(renderer, NULL, surface->format->format, surface->pixels, surface->pitch);
-    IMG_SavePNG(surface, filename);
-    
-    SDL_FreeSurface(surface);
+	SDL_Surface *surface = SDL_CreateRGBSurface(0, width, height, 32, 0, 0, 0, 0);
+	SDL_RenderReadPixels(renderer, NULL, surface->format->format, surface->pixels, surface->pitch);
+	IMG_SavePNG(surface, filename);
+
+	SDL_FreeSurface(surface);
 }
 
 
 void sdl_convert_epoch(const time_t epoch, const char *format, char *date)
 {
-	struct tm tm;	
+	struct tm tm;
 	tm = *gmtime(&epoch);
 	strftime(date, sizeof(date), format, &tm);
 }

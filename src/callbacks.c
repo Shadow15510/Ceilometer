@@ -4,7 +4,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <time.h>
 
 #include "include/callbacks.h"
 #include "include/netcdf_api.h"
@@ -139,6 +138,8 @@ G_MODULE_EXPORT void on_button_validation_clicked(void)
 	if (x_min >= x_max || y_min >= y_max)
 		return ;
 
+	GtkProgressBar *pbar = GTK_PROGRESS_BAR(gtk_builder_get_object(builder, "progress_bar"));
+	gtk_progress_bar_set_text(pbar, "En cours de traitement");
 	gdk_window_set_cursor(G_WINDOW, G_WAIT_CURSOR);
 
 	float factor_x = 1, factor_y = 1;
@@ -183,4 +184,6 @@ G_MODULE_EXPORT void on_button_validation_clicked(void)
 	free(y_labels);
 
 	gdk_window_set_cursor(G_WINDOW, G_DEFAULT_CURSOR);
+	gtk_progress_bar_set_text(pbar, "En attente de validation");
+	gtk_progress_bar_set_fraction(pbar, 0);
 }
