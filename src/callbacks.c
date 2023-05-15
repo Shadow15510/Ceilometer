@@ -139,7 +139,7 @@ G_MODULE_EXPORT void on_button_validation_clicked(void)
 		return ;
 
 	GtkProgressBar *pbar = GTK_PROGRESS_BAR(gtk_builder_get_object(builder, "progress_bar"));
-	gtk_progress_bar_set_text(pbar, "En cours de traitement");
+	gtk_progress_bar_set_text(pbar, "Work in progress");
 	gdk_window_set_cursor(G_WINDOW, G_WAIT_CURSOR);
 
 	float factor_x = 1, factor_y = 1;
@@ -184,6 +184,6 @@ G_MODULE_EXPORT void on_button_validation_clicked(void)
 	free(y_labels);
 
 	gdk_window_set_cursor(G_WINDOW, G_DEFAULT_CURSOR);
-	gtk_progress_bar_set_text(pbar, "En attente de validation");
+	gtk_progress_bar_set_text(pbar, "Waiting for validation");
 	gtk_progress_bar_set_fraction(pbar, 0);
 }

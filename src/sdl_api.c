@@ -215,7 +215,7 @@ void sdl_loop(SDL_Renderer *renderer, const char *filename, struct netcdf_data *
 
 	FILE *file = NULL;
 	file = fopen(filename, "w");
-	sprintf(csv_row, "identifiant; %s; %s; %s\n", data->varname, data->x_name, data->y_name);
+	sprintf(csv_row, "id; %s; %s; %s\n", data->varname, data->x_name, data->y_name);
 	fputs(csv_row, file);
 
 	while (event.type != SDL_QUIT)
