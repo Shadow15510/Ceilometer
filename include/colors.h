@@ -1,3 +1,8 @@
+/* NEVADA:colors
+
+   This is an array of RGB tuples to encoding the color scale.
+*/
+
 #ifndef _COLORS_H
 #define _COLORS_H
 

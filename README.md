@@ -1,34 +1,37 @@
 # NEVADA (NetCDF Explorer and Visualizer for Atmospheric Data Analysis)
 
-## Présentation
-NEVADA (NetCDF Explorer and Visualizer for Atmospheric Data Analysis) est un petit logiciel permettant d'ouvrir et de représenter graphiquement des fichiers NetCDF.
+## Presentation
+NEVADA (NetCDF Explorer and Visualizer for Atmospheric Data Analysis) is a small software that allows to open and display bidimensionnal variables from NetCDF files.
+
+This soft was designed to handle files around 300 Mo.
 
 ![](nevada_presentation.png)
 
 ## Licence
-La totalité du code est soumis à la licence GNU General Public Licence v3.0.
+This project is all under GNU General Public Licence v3.0.
+Please read LICENCE for more informations.
 
-## Utilisation
+## Usage
 
-### Dépendances
-Pour devez avoir les paquets suivants :
+### Dependencies
+To build and use NEVADA, you will need the following:
 
  - netcdf >= 4.9.0
  - gtk3
  - SDL2
 
 ### Installation
-Pour installer NEVADA, il faut suivre la démarche standard :
+To install NEVADA, just follow these steps:
 ```
 $ git clone https://github.com/Shadow15510/NEVADA.git 
 $ cd NEVADA
 $ make
 $ make install
 ```
-dans le cadre d'une réinstallation ou d'une mise à jour, faites `make clear` avant.
+If you want to delete the objects files from the compilation you can `make clean`.
 
-### Mise à jour
-Pour mettre à jour NEVADA :
+### Update
+To update NEVADA:
 ```
 $ cd NEVADA
 $ make clear
@@ -36,8 +39,10 @@ $ git pull
 $ make
 $ make install
 ```
-### Désinstallation
-Pour désinstaller :
+Note that `make clear` isn't necessary (actually it allows to supress NEVADA from your system).
+
+### Uninstall
+To remove NEVADA from your system:
 ```
 $ cd NEVADA
 $ make clear

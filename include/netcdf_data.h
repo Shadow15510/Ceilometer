@@ -1,3 +1,10 @@
+/* NEVADA:netcdf_data
+
+   This module define the structure `netcdf_data`. `netcdf_data` contains all
+   the important informations about the NetCDF variable the user want to
+   extract.
+*/
+
 #ifndef _NETCDF_DATA_H
 #define _NETCDF_DATA_H
 

@@ -23,7 +23,9 @@ clean:
 	rm -rf build	
 
 clear:
-	bash uninstall.sh
+	echo "Removing NEVADA\nAdministrator password required:"
+	sudo bash uninstall.sh
 
 install:
-	bash install.sh
+	echo -e "Installing NEVADA\nAdministrator password required:"
+	sudo bash install.sh

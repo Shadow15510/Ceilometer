@@ -84,7 +84,7 @@ G_MODULE_EXPORT void on_radio_measure_toggled(void)
 
 G_MODULE_EXPORT void on_button_validation_clicked(void)
 {
-	// Récupération du nom du fichier
+	// Get the filename
 	const char *filename = NULL;
 	if (is_file_selected)
 	{
@@ -93,27 +93,27 @@ G_MODULE_EXPORT void on_button_validation_clicked(void)
 	}
 	else return;
 
-	// Récupération de la variable
+	// Get the variable
 	GtkComboBoxText *combo = GTK_COMBO_BOX_TEXT(gtk_builder_get_object(builder, "combo_vars"));
 	const char *var = gtk_combo_box_text_get_active_text(combo);
 	if (var == NULL)
 		return ;
 
-	// Récupération des dimensions et des métadonnées
+	// Get the dim and metadatas
 	size_t X_AXIS, Y_AXIS;
 	int year, month, day;
 	char y_unit[NC_MAX_NAME + 1] = {0};
 	char date[11] = {0};
 	netcdf_get_metadata(filename, var, &X_AXIS, &Y_AXIS, y_unit, date);
 
-	// Récupération des données
+	// Get data
 	float *data = malloc(X_AXIS * Y_AXIS * sizeof(float));
 	float *x_labels = malloc(X_AXIS * sizeof(float));
 	float *y_labels = malloc(Y_AXIS * sizeof(float));
 	char dimsname[2][NC_MAX_NAME + 1];
 	netcdf_get_data(filename, var, data, x_labels, y_labels, dimsname);
 
-	// Récupération du mode d'ouverture et traitement des données
+	// Get the opening mode and analyse the data (if needed)
 	float minimum = 0, maximum = 0;
 	if (filter)
 	{
@@ -126,7 +126,7 @@ G_MODULE_EXPORT void on_button_validation_clicked(void)
 		if (maximum <= minimum) return;
 	}
 
-	// Récupération des limites
+	// Get the axis limits
 	GtkSpinButton *spin_x_min = GTK_SPIN_BUTTON(gtk_builder_get_object(builder, "spin_x_min"));
 	int x_min = (int) gtk_spin_button_get_value(spin_x_min);
 	GtkSpinButton *spin_x_max = GTK_SPIN_BUTTON(gtk_builder_get_object(builder, "spin_x_max"));
@@ -174,11 +174,11 @@ G_MODULE_EXPORT void on_button_validation_clicked(void)
 		filter
 	};
 
-	// Boucle principale
+	// Main render function
 	sdl_render(&netcdf_data, image_mode);
 
 
-	// Désallocation des ressources
+	// Free the ressources
 	free(data);
 	free(x_labels);
 	free(y_labels);

@@ -31,7 +31,7 @@ void sdl_render(struct netcdf_data *data, const bool image_mode)
 		HEIGHT /= y_factor;
 	}
 
-	// Initialisation de la SDL
+	// SDL initialization
 	SDL_Window *window = NULL;
 	SDL_Renderer *renderer = NULL;
 	SDL_Init(SDL_INIT_VIDEO);
@@ -43,16 +43,16 @@ void sdl_render(struct netcdf_data *data, const bool image_mode)
 	renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_SOFTWARE);
 	SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
 
-	// Initialisation du rendu
+	// Renderer initialization
 	SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
 	SDL_RenderClear(renderer);
 
-	// Traitement des données
+	// Processing of the data
 	if (!data->filter) sdl_get_limits(data);
 
 	GtkProgressBar *pbar = GTK_PROGRESS_BAR(gtk_builder_get_object(builder, "progress_bar"));
 
-	// Dessin du rendu
+	// Draw render
 	for (int x = 0; x < WIDTH; x ++)
 	{
 		gtk_progress_bar_set_fraction(pbar, (gdouble) (x + 1) / WIDTH);
@@ -70,7 +70,7 @@ void sdl_render(struct netcdf_data *data, const bool image_mode)
 				if (data->var[index] > data->maximum)
 					data->var[index] = data->maximum;
 			}
-			// Affichage des données
+			// color scale
 			int color_index = 1019 - floor(1019 * (sdl_invert_sign(data->minimum) + data->var[index]) / (sdl_invert_sign(data->minimum) + data->maximum));
 			if (color_index >= 0 && color_index < 1020)
 			{
@@ -84,7 +84,7 @@ void sdl_render(struct netcdf_data *data, const bool image_mode)
 	{				
 		sdl_labels(data, renderer, WIDTH, HEIGHT);
 
-		// Exportation au format PNG
+		// Export into a PNG file
 		char filename[100];
 		sprintf(filename, "/home/%s/%s_%s.png", getenv("USER"), data->varname, data->date);
 		sdl_save_renderer(filename, renderer, WIDTH, HEIGHT);
@@ -100,7 +100,7 @@ void sdl_render(struct netcdf_data *data, const bool image_mode)
 		char metadata[50];
 		sprintf(metadata, "%s %s (mesures)", data->varname, data->date);
 
-		// Inscription des métadonnées
+		// Write the metadata on the image
 		TTF_Init();
 		TTF_Font *jetbrains = TTF_OpenFont("/usr/bin/nevada_data/fonts/JetBrainsMono-Bold.ttf", 20);
 		sdl_render_text(renderer, jetbrains, 2, 2, metadata, true);
@@ -119,7 +119,7 @@ void sdl_render(struct netcdf_data *data, const bool image_mode)
 
 void sdl_labels(struct netcdf_data *data, SDL_Renderer *renderer, const int WIDTH, const int HEIGHT)
 {
-	// Initialisation de la TTF
+	// TTF initialization
 	TTF_Init();
 	TTF_Font *jetbrains = TTF_OpenFont("/usr/bin/nevada_data/fonts/JetBrainsMono-Bold.ttf", 40);
 	
@@ -127,12 +127,12 @@ void sdl_labels(struct netcdf_data *data, SDL_Renderer *renderer, const int WIDT
 	SDL_Texture *texture_text = NULL;
 	char ordinate[15], time[15], scale[15];
 
-	// Échelles et grille
+	// Scales and grid
 	for (int x = 0; x < WIDTH; x ++)
 	{
 		for (int y = 0; y < HEIGHT; y ++)
 		{
-			// Échelle des ordonnées
+			// Scale on y-axis
 			if (!(y % 50) && y && y < HEIGHT - 50 && x == WIDTH / 2)
 			{
 				
@@ -141,7 +141,7 @@ void sdl_labels(struct netcdf_data *data, SDL_Renderer *renderer, const int WIDT
 				sdl_render_text(renderer, jetbrains, 2, HEIGHT - (y + 52), ordinate, true);
 			}
 
-			// Grille
+			// Grid
 			if (!(y % 50) && y && y < HEIGHT - 50 && !(x % 240) && x)
 			{
 				SDL_SetRenderDrawColor(renderer, 255, 255, 255, 200);
@@ -152,7 +152,7 @@ void sdl_labels(struct netcdf_data *data, SDL_Renderer *renderer, const int WIDT
 			}
 		}
 		
-		// Échelle des temps
+		// Temporal (x) axis
 		if (!(x % 240) && x)
 		{
 			sdl_convert_epoch((time_t) data->x_labels[(int) floor(x / data->x_factor + data->x_min)], "%H:%M", time);
@@ -160,7 +160,7 @@ void sdl_labels(struct netcdf_data *data, SDL_Renderer *renderer, const int WIDT
 		}
 	}
 
-	// Dessin du nuancier de couleur
+	// Color scale legend
 	for (int x = 0; x < 2040; x ++)
 	{
 		int color_index = 1019 - floor(x / 2);
@@ -182,7 +182,7 @@ void sdl_labels(struct netcdf_data *data, SDL_Renderer *renderer, const int WIDT
 	SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
 	SDL_RenderDrawRect(renderer, &rect);
 
-	// Affichage des métadonnées
+	// Print the metadata
 	char metadata[50];
 	sprintf(metadata, "%s %s", data->varname, data->date);
 	SDL_Color color = {0, 0, 0};
