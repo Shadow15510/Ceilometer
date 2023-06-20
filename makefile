@@ -24,8 +24,8 @@ clean:
 
 clear:
 	@echo "Removing NEVADA\nAdministrator password required:"
-	sudo bash uninstall.sh
+	@sudo bash uninstall.sh
 
 install:
 	@echo -e "Installing NEVADA\nAdministrator password required:"
-	sudo bash install.sh
+	@sudo bash install.sh
