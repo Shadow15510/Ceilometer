@@ -7,4 +7,4 @@ echo "removing of /usr/bin/nevada"
 sudo rm /usr/bin/nevada
 
 echo "deleting the desktop entry"
-sudo rm ~/.local/share/applications/nevada.desktop
+rm ~/.local/share/applications/nevada.desktop
