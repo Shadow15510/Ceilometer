@@ -21,7 +21,11 @@
    It takes as input the variable to represent as a netcdf_data structure. And
    according to the opening mode, sdl_render will save the fig into a PNG file
    of display it to the screen. */
-void sdl_render(struct netcdf_data *data, const bool image_mode);
+void sdl_measure(struct netcdf_data *data);
+
+
+void sdl_render_var2d(struct netcdf_data *data);
+
 
 
 /* sdl_labels: add axis' labels and legend to the renderer

@@ -4,6 +4,7 @@
 #include <string.h>
 #include <SDL2/SDL_image.h>
 #include <time.h>
+#include <locale.h>
 
 #include "include/sdl_api.h"
 #include "include/colors.h"
@@ -11,34 +12,28 @@
 
 extern GtkBuilder *builder;
 
-void sdl_render(struct netcdf_data *data, const bool image_mode)
+void sdl_measure(struct netcdf_data *data)
 {
 	int WIDTH = floor(data->x_factor * (data->x_max - data->x_min));
 	int HEIGHT = floor(data->y_factor * (data->y_max - data->y_min));
 
-	if (!image_mode)
-	{
-		int x_factor = ceil((float) WIDTH / 1920.), y_factor = ceil((float) HEIGHT / 1080.);
+	int x_factor = ceil((float) WIDTH / 1920.), y_factor = ceil((float) HEIGHT / 1080.);
 
-		if (x_factor <= 1)
-			x_factor = 1;
-		if (y_factor <= 1)
-			y_factor = 1;
+	if (x_factor <= 1)
+		x_factor = 1;
+	if (y_factor <= 1)
+		y_factor = 1;
 
-		data->x_factor /= x_factor;
-		WIDTH /= x_factor;
-		data->y_factor /= y_factor;
-		HEIGHT /= y_factor;
-	}
+	data->x_factor /= x_factor;
+	WIDTH /= x_factor;
+	data->y_factor /= y_factor;
+	HEIGHT /= y_factor;
 
 	// SDL initialization
 	SDL_Window *window = NULL;
 	SDL_Renderer *renderer = NULL;
 	SDL_Init(SDL_INIT_VIDEO);
-	if (image_mode)
-		window = SDL_CreateWindow("", 0, 0, WIDTH, HEIGHT, SDL_WINDOW_HIDDEN);
-	else
-		window = SDL_CreateWindow("", 0, 0, WIDTH, HEIGHT, SDL_WINDOW_SHOWN);
+	window = SDL_CreateWindow("", 0, 0, WIDTH, HEIGHT, SDL_WINDOW_SHOWN);
 
 	renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_SOFTWARE);
 	SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
@@ -80,36 +75,24 @@ void sdl_render(struct netcdf_data *data, const bool image_mode)
 		}
 	}
 
-	if (image_mode)
-	{				
-		sdl_labels(data, renderer, WIDTH, HEIGHT);
+	char filename[100];
+	sprintf(filename, "/home/%s/%s_%s.csv", getenv("USER"), data->varname, data->date);
 
-		// Export into a PNG file
-		char filename[100];
-		sprintf(filename, "/home/%s/%s_%s.png", getenv("USER"), data->varname, data->date);
-		sdl_save_renderer(filename, renderer, WIDTH, HEIGHT);
-	}
-	else
-	{
-		char filename[100];
-		sprintf(filename, "/home/%s/%s_%s.csv", getenv("USER"), data->varname, data->date);
+	SDL_RenderPresent(renderer);
+	sdl_loop(renderer, filename, data, HEIGHT);
 
-		SDL_RenderPresent(renderer);
-		sdl_loop(renderer, filename, data, HEIGHT);
+	char metadata[50];
+	sprintf(metadata, "%s %s (mesures)", data->varname, data->date);
 
-		char metadata[50];
-		sprintf(metadata, "%s %s (mesures)", data->varname, data->date);
+	// Write the metadata on the image
+	TTF_Init();
+	TTF_Font *jetbrains = TTF_OpenFont("/usr/bin/nevada_data/fonts/JetBrainsMono-Bold.ttf", 20);
+	sdl_render_text(renderer, jetbrains, 2, 2, metadata, true);
+	TTF_CloseFont(jetbrains);
+	TTF_Quit();
 
-		// Write the metadata on the image
-		TTF_Init();
-		TTF_Font *jetbrains = TTF_OpenFont("/usr/bin/nevada_data/fonts/JetBrainsMono-Bold.ttf", 20);
-		sdl_render_text(renderer, jetbrains, 2, 2, metadata, true);
-		TTF_CloseFont(jetbrains);
-		TTF_Quit();
-
-		sprintf(filename, "/home/%s/%s_mesures_%s.png", getenv("USER"), data->varname, data->date);
-		sdl_save_renderer(filename, renderer, WIDTH, HEIGHT);
-	}
+	sprintf(filename, "/home/%s/%s_mesures_%s.png", getenv("USER"), data->varname, data->date);
+	sdl_save_renderer(filename, renderer, WIDTH, HEIGHT);
 
 	SDL_DestroyWindow(window);
 	SDL_DestroyRenderer(renderer);
@@ -117,11 +100,84 @@ void sdl_render(struct netcdf_data *data, const bool image_mode)
 }
 
 
+
+void sdl_render_var2d(struct netcdf_data *data)
+{
+	setlocale(LC_ALL, "C");
+	int WIDTH = floor(data->x_factor * (data->x_max - data->x_min));
+	int HEIGHT = floor(data->y_factor * (data->y_max - data->y_min));
+
+	char xlabels[300] = {'\0'}, ylabels[300] = {'\0'};
+	char tmp[64] = {'\0'};
+	GtkProgressBar *pbar = GTK_PROGRESS_BAR(gtk_builder_get_object(builder, "progress_bar"));
+
+	// Draw render
+	FILE *temp = fopen("output.dat", "w");
+	for (int x = 0; x < WIDTH; x ++)
+	{
+		gtk_progress_bar_set_fraction(pbar, (gdouble) (x + 1) / WIDTH);
+		gtk_main_iteration_do(false);
+
+		if (x % (int) (WIDTH / 10) == 0)
+		{
+			int index = (int) floor(x / data->x_factor + data->x_min);
+			sdl_convert_epoch((time_t) data->x_labels[index], "%H:%M", tmp);
+			if (x != 0)
+				sprintf(xlabels, "%s, '%s' %d", xlabels, tmp, x);
+			else
+				sprintf(xlabels, "'%s' %d", tmp, x);
+		}
+
+		for (int y = 0; y < HEIGHT; y ++)
+		{
+			if (y % (int) (HEIGHT / 10) == 0)
+			{
+				int label = floor(data->y_labels[(int) floor(y / data->y_factor + data->y_min)]);
+				if (y != 0)
+					sprintf(ylabels, "%s, '%d %s' %d", ylabels, label, data->y_unit, y);
+				else
+					sprintf(ylabels, "'%d %s' %d", label, data->y_unit, y);
+			}
+
+			int data_x = x / data->x_factor + data->x_min;
+			int data_y = y / data->y_factor + data->y_min;
+
+			int index = floor(data->Y_AXIS * data_x + data_y);
+			if (data->filter)
+			{
+				if (data->var[index] < data->minimum)
+					data->var[index] = data->minimum;
+				if (data->var[index] > data->maximum)
+					data->var[index] = data->maximum;
+			}
+			fprintf(temp, "%d %d %f\n", x, y, data->var[index]);
+		}
+		fprintf(temp, "\n");
+	}
+	fclose(temp);
+
+	// Calling Gnuplot
+	FILE *gnuplot = popen("gnuplot", "w");
+	fprintf(gnuplot, "set term jpeg size %d, %d font '/usr/bin/nevada_data/font/cmu.serif-roman.ttf, %d'\n", WIDTH, HEIGHT, (int) (WIDTH / 90));
+	fprintf(gnuplot, "set xlabel '%s'\n", data->x_name);
+	fprintf(gnuplot, "set ylabel '%s'\n", data->y_name);
+	fprintf(gnuplot, "set title '%s %s' noenhanced\n", data->varname, data->date);
+	fprintf(gnuplot, "set xtics (%s)\n", xlabels);
+	fprintf(gnuplot, "set ytics (%s)\n", ylabels);
+	fprintf(gnuplot, "set grid xtics ytics; set grid\n");
+	fprintf(gnuplot, "set output '%s/%s_%s.jpg'; set view map; set xrange [*: *] noextend; set yrange [*: *] noextend; set pm3d\n", getenv("HOME"), data->varname, data->date);
+	fprintf(gnuplot, "splot 'output.dat' using 1:2:3 with pm3d notitle\n");
+	pclose(gnuplot);
+
+	system("rm output.dat");
+}
+
+
 void sdl_labels(struct netcdf_data *data, SDL_Renderer *renderer, const int WIDTH, const int HEIGHT)
 {
 	// TTF initialization
 	TTF_Init();
-	TTF_Font *jetbrains = TTF_OpenFont("/usr/bin/nevada_data/fonts/JetBrainsMono-Bold.ttf", 40);
+	TTF_Font *jetbrains = TTF_OpenFont("/usr/bin/nevada_data/fonts/JetBrainsMono-Bold.ttf", (int) (WIDTH / 90));
 	
 	SDL_Surface *surface_text = NULL;
 	SDL_Texture *texture_text = NULL;

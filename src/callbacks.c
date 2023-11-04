@@ -175,7 +175,10 @@ G_MODULE_EXPORT void on_button_validation_clicked(void)
 	};
 
 	// Main render function
-	sdl_render(&netcdf_data, image_mode);
+	if (image_mode)
+		sdl_render_var2d(&netcdf_data);
+	else
+		sdl_measure(&netcdf_data);
 
 
 	// Free the ressources

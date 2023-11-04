@@ -131,7 +131,7 @@ void netcdf_get_data(const char *filename, const char *var, float *data, float *
 	nc_get_var_float(ncid, varid, &data[0]);
 		
 	int xid, yid;
-	nc_inq_varid(ncid, dimsname[0], &xid);
+	nc_inq_varid(ncid, "time", &xid);
 	nc_get_var_float(ncid, xid, &x_labels[0]);
 	nc_inq_varid(ncid, dimsname[1], &yid);
 	nc_get_var_float(ncid, yid, &y_labels[0]);

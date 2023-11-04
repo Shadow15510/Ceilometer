@@ -127,7 +127,7 @@
                                 <property name="visible">True</property>
                                 <property name="can-focus">True</property>
                                 <property name="receives-default">False</property>
-                                <property name="tooltip-text" translatable="yes">image opening mode: save the data into a PNG file in your /home/user folder.</property>
+                                <property name="tooltip-text" translatable="yes">Iage opening mode: save the data into a PNG file in your /home/user folder.</property>
                                 <property name="active">True</property>
                                 <property name="draw-indicator">True</property>
                                 <signal name="toggled" handler="on_radio_image_toggled" swapped="no"/>
@@ -187,7 +187,7 @@
                               <object class="GtkSpinButton" id="spin_minimum">
                                 <property name="visible">True</property>
                                 <property name="can-focus">True</property>
-                                <property name="tooltip-text" translatable="yes">Minimum accepted value if the filter is active. All value below will be in blue.</property>
+                                <property name="tooltip-text" translatable="yes">Minimum accepted value if the filter is active.</property>
                                 <property name="text" translatable="yes">0,000000</property>
                                 <property name="adjustment">adjustment_minimum</property>
                                 <property name="climb-rate">0.10</property>

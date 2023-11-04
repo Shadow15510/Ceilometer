@@ -34,18 +34,18 @@ If you want to delete the objects files from the compilation you can `make clean
 To update NEVADA:
 ```
 $ cd NEVADA
-$ make clear
+$ make uninstall
 $ git pull
 $ make
 $ make install
 ```
-Note that `make clear` isn't necessary (actually it allows to supress NEVADA from your system).
+Note that `make uninstall` isn't necessary (actually it allows to supress NEVADA from your system).
 
 ### Uninstall
 To remove NEVADA from your system:
 ```
 $ cd NEVADA
-$ make clear
+$ make uninstall
 $ cd ../
 $ rm -rf NEVADA
 ```

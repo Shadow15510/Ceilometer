@@ -22,7 +22,7 @@ build/%.o: %.c
 clean:
 	rm -rf build	
 
-clear:
+uninstall:
 	@echo "Removing NEVADA"
 	bash uninstall.sh
 
