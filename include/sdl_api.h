@@ -27,14 +27,6 @@ void sdl_measure(struct netcdf_data *data);
 void sdl_render_var2d(struct netcdf_data *data);
 
 
-
-/* sdl_labels: add axis' labels and legend to the renderer
-   
-   Once the renderer is initialized with the figure by sdl_render, we can add axis
-   and legend to the renderer via sdl_rendrer. */
-void sdl_labels(struct netcdf_data *data, SDL_Renderer *renderer, const int WIDTH, const int HEIGHT);
-
-
 /* sdl_loop: records and save measures into a CSV file
 
    With the measure opening mode, you can make measure directly from the

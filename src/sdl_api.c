@@ -1,10 +1,10 @@
 #include <gtk/gtk.h>
+#include <locale.h>
 #include <math.h>
 #include <stdio.h>
 #include <string.h>
 #include <SDL2/SDL_image.h>
 #include <time.h>
-#include <locale.h>
 
 #include "include/sdl_api.h"
 #include "include/colors.h"
@@ -14,6 +14,7 @@ extern GtkBuilder *builder;
 
 void sdl_measure(struct netcdf_data *data)
 {
+	setlocale(LC_ALL, "C");
 	int WIDTH = floor(data->x_factor * (data->x_max - data->x_min));
 	int HEIGHT = floor(data->y_factor * (data->y_max - data->y_min));
 
@@ -76,7 +77,7 @@ void sdl_measure(struct netcdf_data *data)
 	}
 
 	char filename[100];
-	sprintf(filename, "/home/%s/%s_%s.csv", getenv("USER"), data->varname, data->date);
+	sprintf(filename, "%s/%s_%s.csv", getenv("HOME"), data->varname, data->date);
 
 	SDL_RenderPresent(renderer);
 	sdl_loop(renderer, filename, data, HEIGHT);
@@ -86,12 +87,12 @@ void sdl_measure(struct netcdf_data *data)
 
 	// Write the metadata on the image
 	TTF_Init();
-	TTF_Font *jetbrains = TTF_OpenFont("/usr/bin/nevada_data/fonts/JetBrainsMono-Bold.ttf", 20);
+	TTF_Font *jetbrains = TTF_OpenFont("/usr/bin/nevada_data/fonts/cmu.serif-roman.ttf", 20);
 	sdl_render_text(renderer, jetbrains, 2, 2, metadata, true);
 	TTF_CloseFont(jetbrains);
 	TTF_Quit();
 
-	sprintf(filename, "/home/%s/%s_mesures_%s.png", getenv("USER"), data->varname, data->date);
+	sprintf(filename, "%s/%s_mesures_%s.png", getenv("HOME"), data->varname, data->date);
 	sdl_save_renderer(filename, renderer, WIDTH, HEIGHT);
 
 	SDL_DestroyWindow(window);
@@ -173,92 +174,6 @@ void sdl_render_var2d(struct netcdf_data *data)
 }
 
 
-void sdl_labels(struct netcdf_data *data, SDL_Renderer *renderer, const int WIDTH, const int HEIGHT)
-{
-	// TTF initialization
-	TTF_Init();
-	TTF_Font *jetbrains = TTF_OpenFont("/usr/bin/nevada_data/fonts/JetBrainsMono-Bold.ttf", (int) (WIDTH / 90));
-	
-	SDL_Surface *surface_text = NULL;
-	SDL_Texture *texture_text = NULL;
-	char ordinate[15], time[15], scale[15];
-
-	// Scales and grid
-	for (int x = 0; x < WIDTH; x ++)
-	{
-		for (int y = 0; y < HEIGHT; y ++)
-		{
-			// Scale on y-axis
-			if (!(y % 50) && y && y < HEIGHT - 50 && x == WIDTH / 2)
-			{
-				
-				int label = floor(data->y_labels[(int) floor(y / data->y_factor + data->y_min)]);
-				sprintf(ordinate, "%d %s", label, data->y_unit);
-				sdl_render_text(renderer, jetbrains, 2, HEIGHT - (y + 52), ordinate, true);
-			}
-
-			// Grid
-			if (!(y % 50) && y && y < HEIGHT - 50 && !(x % 240) && x)
-			{
-				SDL_SetRenderDrawColor(renderer, 255, 255, 255, 200);
-				SDL_Rect rect = {x - 5, HEIGHT - y - 32, 10, 10};
-				SDL_RenderFillRect(renderer, &rect);
-				SDL_SetRenderDrawColor(renderer, 0, 0, 0, 200);
-				SDL_RenderDrawRect(renderer, &rect);
-			}
-		}
-		
-		// Temporal (x) axis
-		if (!(x % 240) && x)
-		{
-			sdl_convert_epoch((time_t) data->x_labels[(int) floor(x / data->x_factor + data->x_min)], "%H:%M", time);
-			sdl_render_text(renderer, jetbrains, x - 60, HEIGHT - 55, time, true);
-		}
-	}
-
-	// Color scale legend
-	for (int x = 0; x < 2040; x ++)
-	{
-		int color_index = 1019 - floor(x / 2);
-		SDL_SetRenderDrawColor(renderer, COLORS[color_index][0], COLORS[color_index][1], COLORS[color_index][2], 255);
-		
-		for (int y = 10; y < 140; y ++)
-			SDL_RenderDrawPoint(renderer, WIDTH - 2050 + x, y);
-	}
-	for (int color_index = 0; color_index <= 1020; color_index ++)
-	{
-		if (!(color_index % 255))
-		{
-			float scale_value = data->minimum + ((color_index * (data->maximum - data->minimum)) / 1020);
-			sprintf(scale, "% 1.2e", scale_value);
-			sdl_render_text(renderer, jetbrains, WIDTH - 2040 + 1.75 * color_index, 50, scale, false);
-		}
-	}
-	SDL_Rect rect = {WIDTH - 2050, 10, 2040, 130};
-	SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
-	SDL_RenderDrawRect(renderer, &rect);
-
-	// Print the metadata
-	char metadata[50];
-	sprintf(metadata, "%s %s", data->varname, data->date);
-	SDL_Color color = {0, 0, 0};
-	surface_text = TTF_RenderText_Solid(jetbrains, metadata, color);
-	texture_text = SDL_CreateTextureFromSurface(renderer, surface_text);
-	int text_width = 0, text_height = 0;
-	SDL_QueryTexture(texture_text, NULL, NULL, &text_width, &text_height);
-	SDL_Rect textrect = {WIDTH - 2060 - text_width, 10, text_width, text_height};
-	SDL_SetRenderDrawColor(renderer, 255, 255, 255, 80);
-	SDL_RenderFillRect(renderer, &textrect);
-	SDL_RenderCopy(renderer, texture_text, NULL, &textrect);
-
-	SDL_FreeSurface(surface_text);
-	SDL_DestroyTexture(texture_text);
-
-	TTF_CloseFont(jetbrains);
-	TTF_Quit();
-}
-
-
 void sdl_loop(SDL_Renderer *renderer, const char *filename, struct netcdf_data *data, const int HEIGHT)
 {
 	uint8_t exit = 0;
@@ -267,7 +182,7 @@ void sdl_loop(SDL_Renderer *renderer, const char *filename, struct netcdf_data *
 
 	SDL_Event event;
 	TTF_Init();
-	TTF_Font *jetbrains = TTF_OpenFont("/usr/bin/nevada_data/fonts/JetBrainsMono-Bold.ttf", 20);
+	TTF_Font *jetbrains = TTF_OpenFont("/usr/bin/nevada_data/font/cmu.serif-roman.ttf", 20);
 
 	FILE *file = NULL;
 	file = fopen(filename, "w");
