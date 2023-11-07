@@ -87,7 +87,9 @@ void sdl_measure(struct netcdf_data *data)
 
 	// Write the metadata on the image
 	TTF_Init();
-	TTF_Font *jetbrains = TTF_OpenFont("/usr/bin/nevada_data/fonts/cmu.serif-roman.ttf", 20);
+	char fontpath[100];
+	sprintf(fontpath, "%s/.local/bin/nevada_data/fonts/cmu.serif-roman.ttf", getenv("HOME"));
+	TTF_Font *jetbrains = TTF_OpenFont(fontpath, 20);
 	sdl_render_text(renderer, jetbrains, 2, 2, metadata, true);
 	TTF_CloseFont(jetbrains);
 	TTF_Quit();
@@ -159,7 +161,7 @@ void sdl_render_var2d(struct netcdf_data *data)
 
 	// Calling Gnuplot
 	FILE *gnuplot = popen("gnuplot", "w");
-	fprintf(gnuplot, "set term jpeg size %d, %d font '/usr/bin/nevada_data/font/cmu.serif-roman.ttf, %d'\n", WIDTH, HEIGHT, (int) (WIDTH / 90));
+	fprintf(gnuplot, "set term jpeg size %d, %d font '%s/.local/bin/nevada_data/font/cmu.serif-roman.ttf, %d'\n", WIDTH, HEIGHT, getenv("HOME"), (int) (WIDTH / 90));
 	fprintf(gnuplot, "set xlabel '%s'\n", data->x_name);
 	fprintf(gnuplot, "set ylabel '%s'\n", data->y_name);
 	fprintf(gnuplot, "set title '%s %s' noenhanced\n", data->varname, data->date);
@@ -182,7 +184,9 @@ void sdl_loop(SDL_Renderer *renderer, const char *filename, struct netcdf_data *
 
 	SDL_Event event;
 	TTF_Init();
-	TTF_Font *jetbrains = TTF_OpenFont("/usr/bin/nevada_data/font/cmu.serif-roman.ttf", 20);
+	char fontpath[100];
+	sprintf(fontpath, "%s/home/.local/bin/nevada_data/fonts/cmu.serif-roman.ttf", getenv("HOME"));
+	TTF_Font *jetbrains = TTF_OpenFont(fontpath, 20);
 
 	FILE *file = NULL;
 	file = fopen(filename, "w");
