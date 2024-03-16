@@ -3,7 +3,7 @@
 ## Presentation
 NEVADA (NetCDF Explorer and Visualizer for Atmospheric Data Analysis) is a small software that allows to open and display bidimensionnal variables from NetCDF files.
 
-This soft was designed to handle files around 300 Mo.
+This soft was designed to handle files up to 300 Mo.
 
 ![](nevada_presentation.png)
 
@@ -19,6 +19,7 @@ To build and use NEVADA, you will need the following:
  - netcdf >= 4.9.0
  - gtk3
  - SDL2
+ - gnuplot
 
 ### Installation
 To install NEVADA, just follow these steps:
@@ -39,7 +40,7 @@ $ git pull
 $ make
 $ make install
 ```
-Note that `make uninstall` isn't necessary (actually it allows to supress NEVADA from your system).
+Note that `make uninstall` isn't necessary (actually it removes NEVADA from your system).
 
 ### Uninstall
 To remove NEVADA from your system:
