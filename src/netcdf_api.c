@@ -77,7 +77,7 @@ void netcdf_set_fits(const char *filename, const char *var)
 
 }
 
-void netcdf_get_metadata(const char *filename, const char *var, size_t *x_axis, size_t *y_axis, char *y_unit, char *date)
+void netcdf_get_metadata(const char *filename, const char *var, size_t *x_axis, char *x_unit, size_t *y_axis, char *y_unit, char *date)
 {
 	int ncid, varid, ndims;
 	int dimsid[NC_MAX_VAR_DIMS];
@@ -89,6 +89,13 @@ void netcdf_get_metadata(const char *filename, const char *var, size_t *x_axis, 
 
 	nc_inq_dimlen(ncid, dimsid[0], x_axis);	
 	nc_inq_dimlen(ncid, dimsid[1], y_axis);
+
+	char x_name[NC_MAX_NAME + 1];
+
+	int x_id;
+	nc_inq_dim(ncid, dimsid[1], x_name, NULL);
+	nc_inq_varid(ncid, x_name, &x_id);
+	nc_get_att_text(ncid, x_id, "units", x_unit);
 
 	char y_name[NC_MAX_NAME + 1];
 
@@ -131,7 +138,7 @@ void netcdf_get_data(const char *filename, const char *var, float *data, float *
 	nc_get_var_float(ncid, varid, &data[0]);
 		
 	int xid, yid;
-	nc_inq_varid(ncid, "time", &xid);
+	nc_inq_varid(ncid, dimsname[0], &xid);
 	nc_get_var_float(ncid, xid, &x_labels[0]);
 	nc_inq_varid(ncid, dimsname[1], &yid);
 	nc_get_var_float(ncid, yid, &y_labels[0]);

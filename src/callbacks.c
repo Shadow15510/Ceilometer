@@ -102,9 +102,9 @@ G_MODULE_EXPORT void on_button_validation_clicked(void)
 	// Get the dim and metadatas
 	size_t X_AXIS, Y_AXIS;
 	int year, month, day;
-	char y_unit[NC_MAX_NAME + 1] = {0};
+	char x_unit[NC_MAX_NAME + 1] = {0}, y_unit[NC_MAX_NAME + 1] = {0};
 	char date[11] = {0};
-	netcdf_get_metadata(filename, var, &X_AXIS, &Y_AXIS, y_unit, date);
+	netcdf_get_metadata(filename, var, &X_AXIS, x_unit, &Y_AXIS, y_unit, date);
 
 	// Get data
 	float *data = malloc(X_AXIS * Y_AXIS * sizeof(float));
@@ -158,6 +158,7 @@ G_MODULE_EXPORT void on_button_validation_clicked(void)
 		x_min,
 		x_max,
 		factor_x,
+		x_unit,
 
 		Y_AXIS,
 		y_labels,

@@ -25,7 +25,7 @@ void netcdf_set_fits(const char *filename, const char *var);
 
    Extract metadata from the given file. Metadata are the axis' size ans units
    and the date. */
-void netcdf_get_metadata(const char *filename, const char *var, size_t *x_axis, size_t *y_axis, char *y_unit, char *date);
+void netcdf_get_metadata(const char *filename, const char *var, size_t *x_axis, char *x_unit, size_t *y_axis, char *y_unit, char *date);
 
 
 /* netcdf_get_data: extrait la variable donnée et les axes associés

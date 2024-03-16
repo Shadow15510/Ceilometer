@@ -22,6 +22,7 @@ struct netcdf_data
 	const int x_min;
 	const int x_max;
 	float x_factor;
+	const char *x_unit;
 
 	const size_t Y_AXIS;
 	const float *y_labels;
