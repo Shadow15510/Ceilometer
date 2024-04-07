@@ -123,18 +123,23 @@ void sdl_render_var2d(struct netcdf_data *data)
 
 		if (x % (int) (WIDTH / 10) == 0)
 		{
-			int label = floor(data->x_labels[(int) floor(x / data->x_factor + data->x_min)]);
-			/*
-			sdl_convert_epoch((time_t) data->x_labels[index], "%H:%M", tmp);
-			if (x != 0)
-				sprintf(xlabels, "%s, '%s' %d", xlabels, tmp, x);
+			int index = (int) floor(x / data->x_factor + data->x_min);
+			if (strcmp(data->x_name,"time") == 0)
+			{
+				sdl_convert_epoch((time_t) data->x_labels[index], "%H:%M", tmp);
+				if (x != 0)
+					sprintf(xlabels, "%s, '%s' %d", xlabels, tmp, x);
+				else
+					sprintf(xlabels, "'%s' %d", tmp, x);
+			}
 			else
-				sprintf(xlabels, "'%s' %d", tmp, x);
-			*/
-			if (x != 0)
-				sprintf(xlabels, "%s, '%d %s' %d", xlabels, label, data->x_unit, x);
-			else
-				sprintf(xlabels, "'%d %s' %d", label, data->x_unit, x);
+			{
+				int label = floor(data->x_labels[index]);
+				if (x != 0)
+					sprintf(xlabels, "%s, '%d %s' %d", xlabels, label, data->x_unit, x);
+				else
+					sprintf(xlabels, "'%d %s' %d", label, data->x_unit, x);
+			}
 		}
 
 		for (int y = 0; y < HEIGHT; y ++)
