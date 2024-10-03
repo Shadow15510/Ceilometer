@@ -24,7 +24,7 @@ To build and use NEVADA, you will need the following:
 ### Installation
 To install NEVADA, just follow these steps:
 ```
-$ git clone https://github.com/Shadow15510/NEVADA.git 
+$ git clone https://github.com/antoine-royer/NEVADA.git 
 $ cd NEVADA
 $ make
 $ make install
